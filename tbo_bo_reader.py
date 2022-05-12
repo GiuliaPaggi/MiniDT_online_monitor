@@ -80,11 +80,12 @@ try:
             #refresh plot if more than 1s is passed since previous one
             t2 = time.time()
             if t2-t1 > 1 :
-                plt.bar(channel,entries, width =1)
+                plt.bar(channel,entries, width =1, color = '#1f77b4')
                 plt.xticks([1, 8, 16, 24, 32, 40, 48, 56, 64], fontsize=6)
                 plt.xlabel('Channels')
                 plt.ylabel('Entries')
                 plt.title(filename+datetime.now().strftime("%Y/%m/%d - %H:%M:%S"))
+                plt.pause(.0001)
                 plt.show()
                 # reset timer
                 t1 = t2 
