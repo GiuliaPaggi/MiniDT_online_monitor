@@ -5,13 +5,35 @@ from datetime import datetime
 
 
 
+def ch_occupancy_plot(channels, entries):
+    # ----- The function plots the histogram of the occupancy of 64 channels (1 MiniDT chamber) -----
+    #       
+    # Parameters
+    # ----------
+    # channels : array
+    #     It represent the x coordinates
+    #
+    # entries : list
+    #     The information about the height of the columns
+       
+    plt.bar(channel,entries, width =1, color = '#1f77b4')
+    plt.xticks([0, 8, 16, 24, 32, 40, 48, 56, 64], fontsize=6)
+    plt.xlabel('Channels')
+    plt.ylabel('Entries')
+    plt.title(filename+datetime.now().strftime("%Y/%m/%d - %H:%M:%S"))
+    plt.pause(.0001)
+    plt.show()
+
+
+
+
 
 # ----- run number can be passed as an argument from the terminal command line
 
 if len(sys.argv)>1:
-    n_run = sys.argv[1]
+    n_run = sys.argv[1] 
 else :
-    n_run = 33
+    n_run = 33  
     
 filename = "/home/gpaggi/dtupy/scripts/MiniDT_Runs/Run_" + str(n_run) + ".txt"             
 
@@ -87,13 +109,7 @@ try:
             #refresh plot if more than 1s is passed since previous one
             t2 = time.time()
             if t2-t1 > 1 :
-                plt.bar(channel,entries, width =1, color = '#1f77b4')
-                plt.xticks([1, 8, 16, 24, 32, 40, 48, 56, 64], fontsize=6)
-                plt.xlabel('Channels')
-                plt.ylabel('Entries')
-                plt.title(filename+datetime.now().strftime("%Y/%m/%d - %H:%M:%S"))
-                plt.pause(.0001)
-                plt.show()
+                ch_occupancy_plot(channel, entries)
                 # reset timer
                 t1 = t2 
         			 
