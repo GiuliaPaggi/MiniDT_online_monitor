@@ -4,11 +4,18 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 
-#Set the filename and open the file
-n_run = 33
+
+
+# ----- run number can be passed as an argument from the terminal command line
+
+if len(sys.argv)>1:
+    n_run = sys.argv[1]
+else :
+    n_run = 33
+    
 filename = "/home/gpaggi/dtupy/scripts/MiniDT_Runs/Run_" + str(n_run) + ".txt"             
 
-# ----- Check if the file exists, close the program if it does not -----
+# ----- check if the file exists, close the program if it does not -----
 if os.path.exists(filename):
     f = open(filename, 'r')
 
