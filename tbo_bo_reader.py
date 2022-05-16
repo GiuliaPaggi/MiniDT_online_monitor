@@ -5,22 +5,22 @@ from datetime import datetime
 
 
 
-def ch_occupancy_plot(channels, entries):
+def ch_occupancy_plot(ax, channels, entries):
     # ----- The function plots the histogram of the occupancy of 64 channels (1 MiniDT chamber) -----
     #       
     # Parameters
     # ----------
+    # ax : AxesSubplot
+    #       axes of the subplot to modify
     # channels : array
     #     It represent the x coordinates
     #
     # entries : list
     #     The information about the height of the columns
        
-    plt.bar(channel,entries, width =1, color = '#1f77b4')
-    plt.xticks([0, 8, 16, 24, 32, 40, 48, 56, 64], fontsize=6)
-    plt.xlabel('Channels')
-    plt.ylabel('Entries')
-    plt.title(filename+datetime.now().strftime("%Y/%m/%d - %H:%M:%S"))
+    ax.cla()
+    ax.bar(channel,entries, width =1, color = '#1f77b4')
+    ax.set_title(filename+datetime.now().strftime("%Y/%m/%d - %H:%M:%S"))
     plt.pause(.0001)
     plt.show()
 
@@ -57,7 +57,12 @@ pins = a+b+c+d
 
 # ----- set interactive mode so that pyplot.show() displays the figures and immediately returns -----
 plt.ion() 
-plt.figure()
+
+# ----- setup the histogram plot -----
+fig, ax = plt.subplots()
+ax.set_xticks([0, 8, 16, 24, 32, 40, 48, 56, 64], fontsize=6)
+ax.set_xlabel('Channels')
+ax.set_ylabel('Entries')
 
 entries = [0] *64 
 
@@ -109,7 +114,7 @@ try:
             #refresh plot if more than 1s is passed since previous one
             t2 = time.time()
             if t2-t1 > 1 :
-                ch_occupancy_plot(channel, entries)
+                ch_occupancy_plot(ax, channel, entries)
                 # reset timer
                 t1 = t2 
         			 
