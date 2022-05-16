@@ -33,7 +33,7 @@ def ch_occupancy_plot(channels, entries):
 if len(sys.argv)>1:
     n_run = sys.argv[1] 
 else :
-    n_run = 33  
+    n_run = int( input('Error, no run number specified. Enter the run number and press the enter key: ') )
     
 filename = "/home/gpaggi/dtupy/scripts/MiniDT_Runs/Run_" + str(n_run) + ".txt"             
 
