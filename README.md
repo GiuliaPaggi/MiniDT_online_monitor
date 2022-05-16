@@ -38,9 +38,9 @@ The format is a string of 5 numbers that, in this order, represent:
 - "TDC fine measurement", the OBDT TDC measurement. 
 The path of the file is fixed but the run number can be passed as a parameter when executing the program. 
 For example, when acquiring the run 32 file, the monitor can be called using  
-> user@host:~$ python tbo_bo_reader.py 32
+> user@host $  python tbo_bo_reader.py 32
 If no run number is passed as a parameter, the user is asked to specify it before the program begins.
-> user@host:~$ python tbo_bo_reader.py 
+> user@host $ python tbo_bo_reader.py 
 > Error, no run number specified. Enter the run number and press the enter key: 
 
 
