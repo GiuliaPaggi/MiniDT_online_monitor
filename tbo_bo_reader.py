@@ -6,7 +6,7 @@ import numpy as np
 
 
 
-def ch_occupancy_plot(ax, channels, entries):
+def occupancy_1D(ax, channels, entries):
     # ----- The function plots the histogram of the occupancy of 64 channels (1 MiniDT chamber) -----
     #       
     # Parameters
@@ -25,6 +25,23 @@ def ch_occupancy_plot(ax, channels, entries):
     plt.pause(.0001)
     plt.show()
     
+def occupancy_2D(ax, entries):
+    # ----- The function plots the 2D histogram of the occupancy of the chamber (1 MiniDT chamber) -----
+    #       
+    # Parameters
+    # ----------
+    # ax : AxesSubplot
+    #       axes of the subplot to modify
+    #
+    # entries : 2d array
+    #     The information about the entries of each chamber cell 
+
+    ax.cla()
+    ax.pcolormesh(entries)       
+    ax.set_title(filename+datetime.now().strftime("%Y/%m/%d - %H:%M:%S"))
+    plt.pause(.0001)
+    plt.show()
+
 
 
 # ----- run number can be passed as an argument from the terminal command line
@@ -74,7 +91,13 @@ ax[0].set_ylabel('Entries')
 
 entries = [0] *64 
 
+# ----- set up 2d chamber occupancy -----
+ax[1].set_xticks([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]) 
+ax[1].set_yticks([1, 2, 3, 4])
+ax[1].set_xlabel('Wire')
+ax[1].set_ylabel('Layer') 
 
+entries_2d = np.array([[0]*16]*4)
 
 
 # ------ read file ------
@@ -112,7 +135,9 @@ try:
                         # assign the channel to the pin and count the entries for each channel value
                         data_channel = pins.index(data_pin)
                         entries[data_channel] +=1
-
+                        data_wire = wire[data_channel]
+                        data_layer = layer[data_channel]
+                        entries_2d[data_layer -1][data_wire -1] +=1
                     
                 else: 
                     data_pins = -1
@@ -124,8 +149,8 @@ try:
             #refresh plot if more than 1s is passed since previous one
             t2 = time.time()
             if t2-t1 > 1 :
-                ch_occupancy_plot(ax[0], channel, entries)
-
+                occupancy_1D(ax[0], channel, entries)
+                occupancy_2D(ax[1], entries_2d)
                 # reset timer
                 t1 = t2 
         			 
@@ -141,3 +166,5 @@ except KeyboardInterrupt:
 
 
         
+
+
