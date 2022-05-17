@@ -25,10 +25,11 @@ obdt_connectors = {
   'd':[40,62,73,153,148,155,156,157,159,166,61,82,77,68,146,147],
   'm':[122,117,23,99,100,116,118,134,132,136,135,144,145,163,164,167],
   'n':[140,92,94,95,97,67,71,80,83,168,196,192,194,84,133,197],
+  'scint':[230]
   }
 
 
-pins = obdt_connectors['a']+obdt_connectors['b']+obdt_connectors['c']+obdt_connectors['d']
+pins = obdt_connectors['a']+obdt_connectors['b']+obdt_connectors['c']+obdt_connectors['d']+obdt_connectors['scint']
 
 # ------- open data file ------- 
 
@@ -53,7 +54,7 @@ try:
         deltatime = t2-t1
         deltaprint = t2-old_t
         hit_bx = random.randint(1, 3564)
-        hit_ch = pins[random.randint(0, 63)]
+        hit_ch = pins[random.randint(0, 64)]
         hit_orbit = random.randint(0, 4095)
         hit_tdc = random.randint(0, 15)
         data_f.write(str(deltatime)+' '+str(hit_orbit)+' '+str(hit_ch)+' '+str(hit_bx)+' '+str(hit_tdc)+'\n') 
