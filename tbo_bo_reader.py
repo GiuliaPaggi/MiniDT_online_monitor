@@ -6,26 +6,29 @@ import numpy as np
 
 
 
-def occupancy_1D(ax, channels, entries):
+def occupancy_1D(ax, ch, entr, title):
     # ----- The function plots the histogram of the occupancy of 64 channels (1 MiniDT chamber) -----
     #       
     # Parameters
     # ----------
     # ax : AxesSubplot
     #       axes of the subplot to modify
-    # channels : array
+    # ch : array
     #     It represent the x coordinates
     #
-    # entries : list
-    #     The information about the height of the columns
+    # entr : list
+    #     The entries of each column
+    #
+    # title : string
+    #     Additional information about the graph to be plotted
        
     ax.cla()
-    ax.bar(channel,entries, width =1, color = '#1f77b4')
-    ax.set_title(filename+datetime.now().strftime("%Y/%m/%d - %H:%M:%S"))
+    ax.bar(ch,entr, width =1, color = '#1f77b4')
+    ax.set_title(filename+datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
     plt.pause(.0001)
     plt.show()
     
-def occupancy_2D(ax, entries):
+def occupancy_2D(ax, entries,title):
     # ----- The function plots the 2D histogram of the occupancy of the chamber (1 MiniDT chamber) -----
     #       
     # Parameters
@@ -35,10 +38,14 @@ def occupancy_2D(ax, entries):
     #
     # entries : 2d array
     #     The information about the entries of each chamber cell 
+    #
+    # title : string
+    #     Additional information about the graph to be plotted
+
 
     ax.cla()
     ax.pcolormesh(entries)       
-    ax.set_title(filename+datetime.now().strftime("%Y/%m/%d - %H:%M:%S"))
+    ax.set_title(filename+datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
     plt.pause(.0001)
     plt.show()
 
@@ -49,7 +56,7 @@ def occupancy_2D(ax, entries):
 if len(sys.argv)>1:
     n_run = sys.argv[1] 
 else :
-    n_run = int( input('Error, no run number specified. Enter the run number and press the enter key (to use the simulated data file, enter -1) :') )
+    n_run = int( input('No run number specified. Enter the run number and press the enter key (to use the simulated data file, enter -1) :\n') )
 
 # ----- to use the file generated with the simulator use r_number = -1 -----
     if n_run == -1: 
@@ -94,23 +101,29 @@ pins = obdt_connectors['a'] + obdt_connectors['b'] + obdt_connectors['c'] + obdt
 
 # ----- set interactive mode so that pyplot.show() displays the figures and immediately returns -----
 plt.ion() 
-fig, ax = plt.subplots(2, 1, figsize = (25, 10))
+fig, ax = plt.subplots(2, 2, figsize = (25, 10))
 
 # ----- set up 1d channel occupancy -----
-ax[0].set_xticks([0, 8, 16, 24, 32, 40, 48, 56, 64])
-ax[0].set_xlabel('Channels')
-ax[0].set_ylabel('Entries')
+ax[0][0].set_xticks([0, 8, 16, 24, 32, 40, 48, 56, 64])
+ax[0][0].set_xlabel('Channels')
+ax[0][0].set_ylabel('Entries')
 
 entries = [0] *64 
 
 # ----- set up 2d chamber occupancy -----
-ax[1].set_xticks([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]) 
-ax[1].set_yticks([1, 2, 3, 4])
-ax[1].set_xlabel('Wire')
-ax[1].set_ylabel('Layer') 
+ax[1][0].set_xticks([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]) 
+ax[1][0].set_yticks([1, 2, 3, 4])
+ax[1][0].set_xlabel('Wire')
+ax[1][0].set_ylabel('Layer') 
 
 entries_2d = np.array([[0]*16]*4)
 
+ax[0][1].set_xticks([0, 8, 16, 24, 32, 40, 48, 56, 64])
+ax[0][1].set_xlabel('Channels')
+ax[0][1].set_ylabel('Rate [Hz]')
+
+timebox_list = []
+timebox_entries = [0] *64 
 
 # ------ read file ------
 
@@ -121,6 +134,8 @@ f.seek(st_size)
 
 # ----- start timer to refresh plot -----  
 t1 = time.time() 
+
+
 
 try:
     
@@ -133,15 +148,21 @@ try:
         # if reading fails, sleep 0.1s and set pointer back before the failed reading
         if not line:
 
-            time.sleep(.5)
+            time.sleep(.1)
             f.seek(where)
         # if the reading is successfull process the string
         else :
             # if the line is completed, extract the pin information
+            
             if line.endswith('\n'):
+                timebox_list.append(line)
                 data =line.split(' ')
+                
                 if len(data)==5: 
                     data_pin = int(data[2] )
+
+                    # keep in list only those events in the previous 5s 
+                    timebox_list = list(filter(lambda x : float(timebox_list[ len(timebox_list)-1 ].split(' ')[0]) - float(x.split(' ')[0]) < 30, timebox_list))
                     # pin 230 is the scintillator coincidence, it is not a OBDT channel
                     if data_pin != 230:
                         # assign the channel to the pin and count the entries for each channel value
@@ -150,7 +171,17 @@ try:
                         data_wire = wire[data_channel]
                         data_layer = layer[data_channel]
                         entries_2d[data_layer -1][data_wire -1] +=1
-                    
+                        
+                    delta_t = float(timebox_list[ len(timebox_list)-1 ].split(' ')[0]) - float(timebox_list[0].split(' ')[0])
+                    print(delta_t)
+                    if  delta_t > 0 :
+                        timebox_entries = [0] *64
+                        for i in timebox_list: 
+                            timebox_pins = int( i.split(' ')[2] ) 
+                            if timebox_pins != 230:
+                                delta_t = float(timebox_list[ len(timebox_list)-1 ].split(' ')[0]) - float(timebox_list[0].split(' ')[0])
+                                timebox_entries[ pins.index(  timebox_pins )]+= 1/delta_t
+                            
                 else: 
                     data_pins = -1
                 
@@ -161,8 +192,10 @@ try:
             #refresh plot if more than 1s is passed since previous one
             t2 = time.time()
             if t2-t1 > 1 :
-                occupancy_1D(ax[0], channel, entries)
-                occupancy_2D(ax[1], entries_2d)
+                occupancy_1D(ax[0][0], channel, entries, "Entries")
+                occupancy_2D(ax[1][0], entries_2d, "Entries")
+                occupancy_1D(ax[0][1], channel, timebox_entries, "Rate (Hz)")
+
                 # reset timer
                 t1 = t2 
             
