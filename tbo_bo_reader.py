@@ -51,6 +51,7 @@ def occupancy_2D(ax, entries,title):
 
 
 
+
 # ----- run number can be passed as an argument from the terminal command line
 
 if len(sys.argv)>1:
@@ -172,6 +173,7 @@ try:
                         data_layer = layer[data_channel]
                         entries_2d[data_layer -1][data_wire -1] +=1
                         
+                    #compute entries/time interval for last 30s of events per channel
                     delta_t = float(timebox_list[ len(timebox_list)-1 ].split(' ')[0]) - float(timebox_list[0].split(' ')[0])
                     print(delta_t)
                     if  delta_t > 0 :
@@ -193,9 +195,9 @@ try:
             t2 = time.time()
             if t2-t1 > 1 :
                 occupancy_1D(ax[0][0], channel, entries, "Entries")
-                occupancy_2D(ax[1][0], entries_2d, "Entries")
+                occupancy_2D(ax[1][0], entries_2d, "Entries_2D")
                 occupancy_1D(ax[0][1], channel, timebox_entries, "Rate (Hz)")
-
+                plt.savefig('Monitor_screen.PNG')
                 # reset timer
                 t1 = t2 
             
