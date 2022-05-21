@@ -4,53 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import numpy as np
 
-
-
-def occupancy_1D(ax, ch, entr, title):
-    # ----- The function plots the histogram of the occupancy of 64 channels (1 MiniDT chamber) -----
-    #       
-    # Parameters
-    # ----------
-    # ax : AxesSubplot
-    #       axes of the subplot to modify
-    # ch : array
-    #     It represent the x coordinates
-    #
-    # entr : list
-    #     The entries of each column
-    #
-    # title : string
-    #     Additional information about the graph to be plotted
-       
-    ax.cla()
-    ax.bar(ch,entr, width =1, color = '#1f77b4')
-    ax.set_title(filename+datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
-    plt.pause(.0001)
-    plt.show()
-    
-def occupancy_2D(ax, entries,title):
-    # ----- The function plots the 2D histogram of the occupancy of the chamber (1 MiniDT chamber) -----
-    #       
-    # Parameters
-    # ----------
-    # ax : AxesSubplot
-    #       axes of the subplot to modify
-    #
-    # entries : 2d array
-    #     The information about the entries of each chamber cell 
-    #
-    # title : string
-    #     Additional information about the graph to be plotted
-
-
-    ax.cla()
-    ax.pcolormesh(entries)       
-    ax.set_title(filename+datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
-    plt.pause(.0001)
-    plt.show()
-
-
-
+import PLOTS
 
 # ----- run number can be passed as an argument from the terminal command line
 
@@ -100,6 +54,8 @@ wire=[1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,9,9,9,9,10
 channel = range(64)
 pins = obdt_connectors['a'] + obdt_connectors['b'] + obdt_connectors['c'] + obdt_connectors['d']
 
+data_list = []
+
 # ----- set interactive mode so that pyplot.show() displays the figures and immediately returns -----
 plt.ion() 
 fig, ax = plt.subplots(2, 2, figsize = (25, 10))
@@ -119,12 +75,20 @@ ax[1][0].set_ylabel('Layer')
 
 entries_2d = np.array([[0]*16]*4)
 
+# ------ set up rate plot ------
 ax[0][1].set_xticks([0, 8, 16, 24, 32, 40, 48, 56, 64])
 ax[0][1].set_xlabel('Channels')
 ax[0][1].set_ylabel('Rate [Hz]')
 
-timebox_list = []
-timebox_entries = [0] *64 
+rate_entries = [0] *64 
+
+# ----- set up timebox -----
+timebox = [ ]
+timebox.append([0,0])
+
+timebox_xaxis = range(600)
+timebox_entries = [0] *600
+
 
 # ------ read file ------
 
@@ -156,14 +120,18 @@ try:
             # if the line is completed, extract the pin information
             
             if line.endswith('\n'):
-                timebox_list.append(line)
-                data =line.split(' ')
+                data_list.append(line)
                 
-                if len(data)==5: 
-                    data_pin = int(data[2] )
+                if len(data_list[ len(data_list)-1 ].split(' '))==5: 
 
-                    # keep in list only those events in the previous 5s 
-                    timebox_list = list(filter(lambda x : float(timebox_list[ len(timebox_list)-1 ].split(' ')[0]) - float(x.split(' ')[0]) < 30, timebox_list))
+
+                    # keep in list only those events in the previous 30s 
+                    data_list = list(filter(lambda x : float(data_list[ len(data_list)-1 ].split(' ')[1]) - float(x.split(' ')[1]) < 30, data_list))
+                    
+                    # ---- integral occupancy -----
+                    data_pin = int( data_list[ len(data_list)-1 ].split(' ')[2] )
+                    print(data_pin)
+                    sys.stdout.flush()
                     # pin 230 is the scintillator coincidence, it is not a OBDT channel
                     if data_pin != 230:
                         # assign the channel to the pin and count the entries for each channel value
@@ -172,17 +140,37 @@ try:
                         data_wire = wire[data_channel]
                         data_layer = layer[data_channel]
                         entries_2d[data_layer -1][data_wire -1] +=1
+                    else:
+                        timebox = list( filter(lambda x : x[0] - timebox[ len(timebox)-1 ][0] <30, timebox))
+                        tr_systime = float(data_list[ len(data_list)-1 ].split(' ')[0])
+                        tr_bx =  int( data_list[ len(data_list)-1 ].split(' ')[3] )
+                        tr_tdc = int( data_list[ len(data_list)-1 ].split(' ')[4].strip('\n') )
+                        tr_time = tr_bx*25.0 + tr_tdc*25/30
                         
-                    #compute entries/time interval for last 30s of events per channel
-                    delta_t = float(timebox_list[ len(timebox_list)-1 ].split(' ')[0]) - float(timebox_list[0].split(' ')[0])
-                    print(delta_t)
+                        i=1
+                        while( data_list[ len(data_list)-1 ].split(' ')[1] == data_list[ len(data_list)-1-i ].split(' ')[1]) :
+                            hit_bx =  int( data_list[ len(data_list)-1-i ].split(' ')[3] )
+                            hit_tdc = int( data_list[ len(data_list)-1-i ].split(' ')[4].strip('\n') )
+                            hit_time = hit_bx*25.0 + hit_tdc*25/30
+                            time_diff= tr_time - hit_time
+                            print( time_diff)
+                            index=round(time_diff * 30/25)
+                            timebox_entries[index] +=1
+                            #timebox.append([hit_time - tr_time, tr_systime])
+                            sys.stdout.flush()
+                            i+=1 
+                            
+                            
+                        
+                    # ---- last 30s rate per channell ---- 
+                    delta_t = float(data_list[ len(data_list)-1 ].split(' ')[0]) - float(data_list[0].split(' ')[0])
+                    #print(delta_t)
                     if  delta_t > 0 :
-                        timebox_entries = [0] *64
-                        for i in timebox_list: 
-                            timebox_pins = int( i.split(' ')[2] ) 
-                            if timebox_pins != 230:
-                                delta_t = float(timebox_list[ len(timebox_list)-1 ].split(' ')[0]) - float(timebox_list[0].split(' ')[0])
-                                timebox_entries[ pins.index(  timebox_pins )]+= 1/delta_t
+                        rate_entries = [0] *64
+                        for i in data_list: 
+                            rate_pins = int( i.split(' ')[2] ) 
+                            if rate_pins != 230:
+                                rate_entries[ pins.index(  rate_pins )]+= 1/delta_t
                             
                 else: 
                     data_pins = -1
@@ -191,13 +179,14 @@ try:
             else :
                 f.seek(where)
             
-            #refresh plot if more than 1s is passed since previous one
+            #refresh plot if more than 10s is passed since previous one
             t2 = time.time()
-            if t2-t1 > 1 :
-                occupancy_1D(ax[0][0], channel, entries, "Entries")
-                occupancy_2D(ax[1][0], entries_2d, "Entries_2D")
-                occupancy_1D(ax[0][1], channel, timebox_entries, "Rate (Hz)")
-                plt.savefig('Monitor_screen.PNG')
+            if t2-t1 > 10 :
+                PLOTS.occupancy_1D(fig, ax[0][0], channel, entries, "Entries")
+                PLOTS.occupancy_2D(fig, ax[1][0], entries_2d, "Entries_2D")
+                PLOTS.occupancy_1D(fig, ax[0][1], channel, rate_entries, "Rate (Hz)")
+                PLOTS.occupancy_1D(fig, ax[1][1], timebox_xaxis , timebox_entries, "Cumulative_Timebox")
+                #plt.savefig('Monitor_screen.PNG')
                 # reset timer
                 t1 = t2 
             
