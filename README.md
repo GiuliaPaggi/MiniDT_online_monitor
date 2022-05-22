@@ -4,7 +4,7 @@ MiniDTs online monitor project. Show occupancy plots, rate and timebox in real t
 ## Table of Contents
 * [General Info](#general-information)
 * [Usage](#usage)
-* [Structure of the project](#structure-project)
+* [Structure of the project](#structure-of-the-project)
 * [Output](#output)
 * [Technologies Used](#technologies-used)
 * [Project Status](#project-status)
@@ -66,19 +66,19 @@ The project is divided in the following way:
 - **test_writer.py**: test file for the simulator function.
 
 ## Output
-### Cumulative occupancy 
+#### Cumulative occupancy 
 - per channel: the plot shows the cumulative hits in each channel of a MiniDT chamber, numbered from 0 to 63.
 
 - 2D: the plot shows the cumulative hits on a 2D map, each rectangle represent one of the chamber cells. The occupancy plot helps in idenifying channels with high noise rate or, on the other side, channels with reduced rate.
 
 
-### Instantaneous rate
+#### Instantaneous rate
 The plot shows the rate in the last 30s of data taking. It can help identify external sources of noise.
 
-### Cumulative timebox
+#### Cumulative timebox
 The plot shows the time difference between the scintillator signal and the chamber response. It represent the drift time of the electrons in the cells and it can help to identify problems in the gas distribution inside the chamber.
 
-### Instantaneous timebox
+#### Instantaneous timebox
 The plot shows time difference between the scintillator signal and the chamber response in the last 30s of events.
 
 
