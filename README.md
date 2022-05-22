@@ -1,5 +1,5 @@
 # MiniDT_online_monitor
-MiniDTs online monitor project. Read data and show occupancy plot in real time.
+MiniDTs online monitor project. Show occupancy plots, rate and timebox in real time.
 
 ## Table of Contents
 * [General Info](#general-information)
@@ -36,16 +36,26 @@ The format is a string of 5 numbers that, in this order, represent:
 - "OBDT pin", the OBDT channel where the signal was recorded;
 - "BX", the simulated bunch crossing associated with the measurement, in each orbit there are 3564 BX;
 - "TDC fine measurement", the OBDT TDC measurement. 
+
+A simulator of the MiniDTs readout program has been developed. The code generates random numbers for the pin, orbit, BX, and TDC measurement values. 
+These are then formatted in the same shape as the actual readout program and written into a text file in the working directory.  
+When the simulated pin corresponds to the scintillator pin, the program generates an event of four vertical hits in the chamber, starting from a random cell of the top layer. 
+This feature is needed to build a timebox, i.d. the plot of the distribution of the time elapsing between the scintillator and the layers signals. 
+Based on the analysis of actual data, the timebox has a width of tilde 400ns. For this reason the events are randomly simulated in a 400ns interval before the scintillator signal. 
+
 The path of the file is fixed but the run number can be passed as a parameter when executing the program. 
 For example, when acquiring the run 32 file, the monitor can be called using  
 > user@host $  python tbo_bo_reader.py 32
 
 
-If no run number is passed as a parameter, the user is asked to specify it before the program begins.
+If no run number is passed as a parameter, the user is asked to specify it before the program begins, the simulated file is identified by -1.
 
 
 > user@host $ python tbo_bo_reader.py 
-> Error, no run number specified. Enter the run number and press the enter key: 
+> 'No run number specified. Enter the run number and press the enter key (to use the simulated data file, enter -1):
+
+
+
 
 
 
@@ -61,7 +71,8 @@ The project is developed in a python 3.9 environment, using the following module
 - sys 
 - os
 - datetime
+- numpy 
 
 
 ## Project Status
-The project is in progress. At the moment only the occupancy for one chamber is displayed. 
+The project is in progress. At the moment the channels occupancy, the 2D chamber occupancy, the rate of the last 30s are displayed. 
