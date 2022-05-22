@@ -54,7 +54,25 @@ If no run number is passed as a parameter, the user is asked to specify it befor
 > user@host $ python tbo_bo_reader.py 
 > 'No run number specified. Enter the run number and press the enter key (to use the simulated data file, enter -1):
 
+## Structure of the project
+The project is divided in the following way:
+- **tbo_bo_reader.py**:  the file that reads the run data file during the data taking and manages the online monitor;
+- **PLOTS.py**: file in which the plotting functions for the monitor are defined;
+- **tbo_bo_writer_simulator.py**: the simulator of one MiniDT chamber readout, writes continuoulsy a text file with randomly generated hits;
+- **SORT.py**: file in which the sorting function of the simulator is defined;
+- **test_writer.py**: test file for the simulator function.
 
+## Output
+### Cumulative occupancy 
+- per channel: the plot shows the cumulative hits in each channel of a MiniDT chamber, numbered from 0 to 63.
+
+- 2D: the plot shows the cumulative hits on a 2D map, each rectangle represent one of the chamber cells. The occupancy plot helps in idenifying channels with high noise rate or, on the other side, channels with reduced rate.
+
+### Cumulative timebox
+The plot shows the time difference between the scintillator signal and the chamber response. It represent the drift time of the electrons in the cells and it can help to identify problems in the gas distribution inside the chamber.
+
+### Instantaneous rate
+The plot shows the rate in the last 30s of data taking. It can help identify external sources of noise.
 
 
 
