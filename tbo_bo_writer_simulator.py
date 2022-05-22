@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Sat May 21 11:29:16 2022
+
+@author: Giulia Paggi
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Tue May 17 12:42:55 2022
 
 @author: Giulia Paggi
@@ -8,6 +15,7 @@ import time
 from datetime import datetime
 import random 
 import sys
+import SORT
 
 
 obdt_connectors = {
@@ -50,28 +58,38 @@ old_t=0
 
 try: 
     while( True ):
-        time.sleep(0.01)
+        time.sleep(0.1)
         t2 = time.time()
         deltatime = t2-t1
         deltaprint = t2-old_t
         hit_bx = random.randint(1, 3564)
         hit_ch = pins[random.randint(0, 64)] # 0-63 chamber pins, 64 the scintillator pin
         hit_orbit = random.randint(0, 4095)
-        hit_tdc = random.randint(0, 15)
-        data_f.write(str(deltatime)+' '+str(hit_orbit)+' '+str(hit_ch)+' '+str(hit_bx)+' '+str(hit_tdc)+'\n') 
+        hit_tdc = random.randint(0, 30)
+        
         # for each scintillator signal simulate 4 hit vertical event in chamber startin from random L4 cell
         if hit_ch == 230:
-            event_1ch=random.randrange(0, 60, 4)  #select layer 4 (L4) channels, using https://github.com/zucchett/MiniDT/wiki
-            L4_pin = pins[event_1ch] 
-            L2_pin = pins[event_1ch +1]
-            L3_pin = pins[event_1ch +2]
-            L1_pin = pins[event_1ch +3]
-            data_f.write(str(deltatime )+' '+str(hit_orbit)+' '+str(L4_pin)+' '+str(hit_bx)+' '+str(hit_tdc)+'\n') #L4
-            data_f.write(str(deltatime )+' '+str(hit_orbit)+' '+str(L2_pin)+' '+str(hit_bx)+' '+str(hit_tdc+4)+'\n') #L2
-            data_f.write(str(deltatime )+' '+str(hit_orbit)+' '+str(L3_pin)+' '+str(hit_bx)+' '+str(hit_tdc+2)+'\n')  #L3
-            data_f.write(str(deltatime )+' '+str(hit_orbit)+' '+str(L1_pin)+' '+str(hit_bx)+' '+str(hit_tdc+6)+'\n')  #L1
-            data_f.close()
-            sys.exit()
+            print("scintillator event")
+            sys.stdout.flush()
+            tr_time = hit_bx*25 + hit_tdc*25/30 
+            
+            L4ch=random.randrange(0, 60, 4)  #select layer 4 (L4) channels, using https://github.com/zucchett/MiniDT/wiki
+            if hit_bx > 15 : mx_bx= 15
+            else : mx_bx = hit_bx
+            channels = [pins[L4ch+i] for i in range(4)]
+            bxs = [ hit_bx-random.randint(1, mx_bx) for i in range(4)]
+            sorted_bxs = SORT.sort_layers(bxs)
+            tdcs = [random.randint(0, 29) for i in range(4)]
+        
+            for i in range(4):
+                event_time= bxs[i]*25.0 + tdcs[i]*25/30
+                if tr_time-event_time <= 400 and tr_time-event_time >=0 : 
+                    data_f.write(str(deltatime )+' '+str(hit_orbit)+' '+str(channels[i])+' '+str(sorted_bxs[i])+' '+str(tdcs[i])+'\n') 
+            data_f.write(str(deltatime)+' '+str(hit_orbit)+' '+str(hit_ch)+' '+str(hit_bx)+' '+str(hit_tdc)+'\n') 
+            
+        else: 
+            data_f.write(str(deltatime)+' '+str(hit_orbit)+' '+str(hit_ch)+' '+str(hit_bx)+' '+str(hit_tdc)+'\n') 
+
         data_f.flush()
 
 except KeyboardInterrupt:
