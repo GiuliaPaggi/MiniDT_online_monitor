@@ -1,5 +1,5 @@
 # MiniDT_online_monitor
-MiniDTs online monitor project. Show occupancy plots, rate and timebox in real time.
+MiniDTs online monitor project. Show occupancy plots, rate, and timebox in real-time.
 
 ## Table of Contents
 * [General Info](#general-information)
@@ -21,10 +21,10 @@ MiniDTs online monitor project. Show occupancy plots, rate and timebox in real t
 ## General Information
 Using spare material from the original CMS DT chambers, eight smaller size SLs, called MiniDTs were built at INFN Legnaro National Laboratory in Padova. 
 Using two of these MiniDTs we aim to install a cosmic rays telescope and test its efficiency and resolution. 
-The MiniDTs are operated with the same high volatge and gas mixture condition used in CMS.
+The MiniDTs are operated with the same high voltage and gas mixture condition used in CMS.
 The signals on the front end are read using two boards: an On-detector Board for Drift Tube (OBDT) version 1 for the time to digital conversion, and a Xilinx Virtex-7 FPGA VC707 that provides the simulated LHC clock and can be used to implement the slow control.  
 The telescope will be completed with three scintillator planes, instrumented with photomultipliers to read out the signals.
-These are going to be located at the top, at the bottom, and in between the two MiniDTs to provide an independent signal, using the coincidence of two or more planes. This signal will be used to identify muons crossing the telescope in the offline analysis of the data from the miniDTs, which have a trigger-less data acquisition system. 
+These will be located at the top, at the bottom, and in between the two MiniDTs to provide an independent signal, using the coincidence of two or more planes. This signal will be used to identify muons crossing the telescope in the offline analysis of the data from the miniDTs, which have a trigger-less data acquisition system. 
 This project aims to develop an online monitor that can allow for a check of the data acquisition process, controlling the data quality and the detector status. 
 The focus is on the occupancy of each channel and the time difference between the scintillator and the MiniDTs front-end signals. The first allows identifying during the data taking dead or particularly noisy channels.
 The latter is related to the linearity of the MiniDT's space-time response, which depends on the electrons' drift velocity in the chamber.
@@ -44,14 +44,14 @@ A simulator of the MiniDTs readout program has been developed. The code generate
 These are then formatted in the same shape as the actual readout program and written into a text file in the working directory.  
 When the simulated pin corresponds to the scintillator pin, the program generates an event of four vertical hits in the chamber, starting from a random cell of the top layer. 
 This feature is needed to build a timebox, i.d. the plot of the distribution of the time elapsing between the scintillator and the layers signals. 
-Based on the analysis of actual data, the timebox has a width of tilde 400ns. For this reason the events are randomly simulated in a 400ns interval before the scintillator signal. 
+Based on the analysis of actual data, the timebox has a width of tilde 400ns. For this reason, the events are randomly simulated in a 400ns interval before the scintillator signal. 
 
 The path of the file is fixed but the run number can be passed as a parameter when executing the program. 
 For example, when acquiring the run 32 file, the monitor can be called using  
 > user@host $  python tbo_bo_reader.py 32
 
 
-If no run number is passed as a parameter, the user is asked to specify it before the program begins, the simulated file is identified by -1.
+If no run number is passed as a parameter, the user is asked to specify it before the program begins, and the simulated file is identified by -1.
 
 
 > user@host $ python tbo_bo_reader.py 
@@ -59,9 +59,9 @@ If no run number is passed as a parameter, the user is asked to specify it befor
 
 ## Structure of the project
 The project is divided in the following way:
-- **tbo_bo_reader.py**:  the file that reads the run data file during the data taking and manages the online monitor;
+- **tbo_bo_reader.py**:  the file that reads the run data file during the data taking and manages the online monitor. Every 30 seconds, it reads all lines that were written on the file in the elapsed time, and displays the updated plots;
 - **PLOTS.py**: file in which the plotting functions for the monitor are defined;
-- **tbo_bo_writer_simulator.py**: the simulator of one MiniDT chamber readout, writes continuoulsy a text file with randomly generated hits;
+- **tbo_bo_writer_simulator.py**: the simulator of one MiniDT chamber readout, writes a line in a text file every 0.1s with randomly generated hits;
 - **SORT.py**: file in which the sorting function of the simulator is defined;
 - **test_writer.py**: test file for the simulator function.
 
@@ -69,17 +69,17 @@ The project is divided in the following way:
 #### Cumulative occupancy 
 - per channel: the plot shows the cumulative hits in each channel of a MiniDT chamber, numbered from 0 to 63.
 
-- 2D: the plot shows the cumulative hits on a 2D map, each rectangle represent one of the chamber cells. The occupancy plot helps in idenifying channels with high noise rate or, on the other side, channels with reduced rate.
+- 2D: the plot shows the cumulative hits on a 2D map, each rectangle represents one of the chamber cells. The occupancy plot helps in identifying channels with high noise rates or, on the other side, channels with a reduced rate.
 
 
 #### Instantaneous rate
 The plot shows the rate in the last 30s of data taking. It can help identify external sources of noise.
 
 #### Cumulative timebox
-The plot shows the time difference between the scintillator signal and the chamber response. It represent the drift time of the electrons in the cells and it can help to identify problems in the gas distribution inside the chamber.
+The plot shows the time difference between the scintillator signal and the chamber response. It depends on the drift time of the electrons in the cells and it can help to identify problems in the gas distribution inside the chamber.
 
 #### Instantaneous timebox
-The plot shows time difference between the scintillator signal and the chamber response in the last 30s of events.
+The plot shows the time difference between the scintillator signal and the chamber response in the last 30s of events.
 
 
 <!--## Screenshots
@@ -97,4 +97,4 @@ The project is developed in a python 3.9 environment, using the following module
 
 
 ## Project Status
-The project is in progress. At the moment it's possible to visualize the channels occupancy, the 2D chamber occupancy, the rate of the last 30s, the timebox of the whole run and of the last 30s of data taking. 
+The project is in progress. At the moment it's possible to visualize the channels occupancy, the 2D chamber occupancy, the rate of the last 30s, the timebox of the whole run, and of the last 30s of data taking. 
