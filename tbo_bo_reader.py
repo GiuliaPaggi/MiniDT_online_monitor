@@ -54,12 +54,11 @@ wire=[1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,9,9,9,9,10
 channel = range(64)
 pins = obdt_connectors['a'] + obdt_connectors['b'] + obdt_connectors['c'] + obdt_connectors['d']
 
-data_list = []
 
 # ----- set interactive mode so that pyplot.show() displays the figures and immediately returns -----
 plt.ion() 
-fig, ax = plt.subplots(2, 2, figsize = (25, 12))
-
+fig, ax = plt.subplots(2, 2, figsize = (15, 10))
+fig_timebox, ax_timebox = plt.subplots(1, 2, figsize = (15, 10))
 
 # ----- set up 1d channel occupancy -----
 entries = [0] *64 
@@ -67,16 +66,18 @@ entries = [0] *64
 # ----- set up 2d chamber occupancy -----
 entries_2d = np.array([[0]*16]*4)
 
-# ------ set up rate plot ------
+# ------ set up rate ------
 rate_entries = [0] *64 
+
+# ----- set up 2d rate -----
+rate_2d = np.array([[0]*16]*4, dtype = float)
 
 # ----- set up timebox cumulative and instantaneous -----
 timebox_xaxis = range(600)
 timebox_entries = [0] *600
 inst_timebox = []
 inst_timebox_entries = [0] *600
-timebox_ticks = [i*25/30 for i in timebox_xaxis]
-
+timebox_ticks = [0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600]
 # ------ read file ------
 
 # find the size of the file and set pointer to the end
@@ -95,103 +96,81 @@ try:
         
         # try to read a line
         where = f.tell()
-        line = f.readline()
-        
+        time.sleep(30)
+        line = f.readlines()
+
         # if reading fails, sleep 0.1s and set pointer back before the failed reading
         if not line:
 
-            time.sleep(.1)
+            #time.sleep(.1)
             f.seek(where)
         # if the reading is successfull process the string
-        else :
-            # if the line is completed, extract the pin information
+        
+        else:    
+            #reset rate histo
+            rate_entries = [0] *64 
+            rate_2d [rate_2d>0] = 0
+            inst_timebox_entries = [0] *600
+            scint = False
+            #check line integrity
+            if not line[0].startswith('_'):
+                line.pop(0)
+        
+            if not line[len(line)-1].endswith('\n'):
+                line.pop(len(line)-1)
             
-            if line.endswith('\n'):
-                data_list.append(line)
-                
-                if len(data_list[ len(data_list)-1 ].split(' '))==5: 
-
-
-                    # keep in lists only those events in the previous 30s 
-                    data_list = list(filter(lambda x : float(data_list[ len(data_list)-1 ].split(' ')[1]) - float(x.split(' ')[1]) < 30, data_list))
-                    inst_timebox = list( filter(lambda x : float(inst_timebox[ len(inst_timebox)-1 ].split(' ')[0]) - float(x.split(' ')[0]) <30, inst_timebox))
+            delta_t = float( line[len(line)-1].split(' ')[1] )- float(line[0].split(' ')[1] )
+            
+            for i in range(0, len(line)):
+                try: 
+                    data_pin = int( line[i].split(' ')[3])
+                    data_channel = pins.index( data_pin )
+                    # ---- fill 1d occupancy ----
+                    entries[data_channel] +=1
+                    rate_entries[data_channel] += 1/delta_t
                     
-                    # ---- integral occupancy -----
-                    data_pin = int( data_list[ len(data_list)-1 ].split(' ')[2] )
+                    
+                    data_wires = wire[data_channel]
+                    data_layers = layer[data_channel]
+                    # ---- fill 2d occupancy ----
+                    entries_2d[data_layers -1][data_wires -1] +=1
+                    rate_2d[data_layers -1][data_wires -1] += 1/delta_t
+                    
+                    
+                    
+                except ValueError:
+                    data_pin=230
+                    print('scintillator event')
+                    scint = True
+                    #recover trigger hit info
+                    tr_systime = float(line[ i ].split(' ')[1])
+                    tr_bx =  int( line[ i ].split(' ')[4] )
+                    tr_tdc = int( line[ i ].split(' ')[5].strip('\n') )
+                    tr_time = tr_bx*25.0 + tr_tdc*25/30
+                    j=1
+                    while( line[ i ].split(' ')[2] == line[ i-j ].split(' ')[2]) :
+                        #compute hits time
+                        hit_bx =  int( line[ i-j ].split(' ')[4] )
+                        hit_tdc = int( line[ i-j ].split(' ')[5].strip('\n') )
+                        hit_time = hit_bx*25.0 + hit_tdc*25/30
+                        #compute time diff and fill a histo with bin width = tdc resolution for cumulative timebox
+                        time_diff= tr_time - hit_time
+                        index=round(time_diff * 30/25)
+                        timebox_entries[index] +=1
+                        inst_timebox_entries[index] +=1
+                        j +=1
 
-                    # pin 230 is the scintillator coincidence, it is not a OBDT channel
-                    if data_pin != 230:
-                        # assign the channel to the pin and count the entries for each channel value and 2D occupancy
-                        data_channel = pins.index(data_pin)
-                        entries[data_channel] +=1
-                        data_wire = wire[data_channel]
-                        data_layer = layer[data_channel]
-                        entries_2d[data_layer -1][data_wire -1] +=1
-                        
-                    else:
-                        # look for channel hits associated to scintillator signals
-                                                
-                        #recover trigger hit info
-                        tr_systime = float(data_list[ len(data_list)-1 ].split(' ')[0])
-                        tr_bx =  int( data_list[ len(data_list)-1 ].split(' ')[3] )
-                        tr_tdc = int( data_list[ len(data_list)-1 ].split(' ')[4].strip('\n') )
-                        tr_time = tr_bx*25.0 + tr_tdc*25/30
-                        
-                        # look for chamber hits before scintillator signal in the same orbit
-                        i=1
-                        while( data_list[ len(data_list)-1 ].split(' ')[1] == data_list[ len(data_list)-1-i ].split(' ')[1]) :
-                            #compute hits time
-                            hit_bx =  int( data_list[ len(data_list)-1-i ].split(' ')[3] )
-                            hit_tdc = int( data_list[ len(data_list)-1-i ].split(' ')[4].strip('\n') )
-                            hit_time = hit_bx*25.0 + hit_tdc*25/30
-                            #compute time diff and fill a histo with bin width = tdc resolution for cumulative timebox
-                            time_diff= tr_time - hit_time
-                            index=round(time_diff * 30/25)
-                            timebox_entries[index] +=1
-                            #compute instantaneous timebox 
-                            inst_timebox.append(str(tr_systime)+' '+str(time_diff))
-                            
-                            sys.stdout.flush()
-                            i+=1 
-                            
-                            
-                        
-                    # ---- last 30s rate per channel ---- 
-                    delta_t = float(data_list[ len(data_list)-1 ].split(' ')[0]) - float(data_list[0].split(' ')[0])
-                    if  delta_t > 0 :
-                        rate_entries = [0] *64
-                        for i in data_list: 
-                            rate_pins = int( i.split(' ')[2] ) 
-                            if rate_pins != 230:
-                                rate_entries[ pins.index(  rate_pins )]+= 1/delta_t
-                                
-                    # ---- last 30s timebox ----
-                    if len(inst_timebox)> 1:
-                        delta_t_tr = float(inst_timebox[ len(inst_timebox)-1 ].split(' ')[0]) - float(inst_timebox[0].split(' ')[0])
-                        inst_timebox_entries = [0] *600
-                        for i in inst_timebox:
-                            inst_timediff = float(i.split(' ')[1])
-                            index=round(inst_timediff * 30/25)
-                            inst_timebox_entries[index] +=1
-                        
-                else: 
-                    data_pins = -1
                 
-            # if the line is not completed set pointer back to the beginning of the line (where it was before reading)
-            else :
-                f.seek(where)
+
+            PLOTS.occupancy_1D(fig, ax[0][0], channel, entries, "Entries", "Channel", "Entries")
+            PLOTS.occupancy_2D(fig, ax[1][0], entries_2d, "Entries_2D", "Wire", "Layer")
+            PLOTS.occupancy_1D(fig, ax[0][1], channel, rate_entries, "Rate (Hz)", "Channel", "Rate (Hz)")
+            PLOTS.occupancy_2D(fig, ax[1][1], rate_2d, "Entries_2D", "Wire", "Layer")
             
-            #refresh plot if more than 10s is passed since previous one
-            t2 = time.time()
-            if t2-t1 > 10 :
-                PLOTS.occupancy_1D(fig, ax[0][0], channel, entries, "Entries", "Channel", "Entries")
-                #PLOTS.occupancy_2D(fig, ax[1][0], entries_2d, "Entries_2D", "Wire", "Layer")
-                PLOTS.occupancy_1D(fig, ax[0][1], channel, rate_entries, "Rate (Hz)", "Channel", "Rate (Hz)" )
-                PLOTS.occupancy_1D(fig, ax[1][1], timebox_xaxis , timebox_entries, "Cumulative_Timebox", "Drift Time (ns)", "Entries" , xticks= timebox_ticks)
-                PLOTS.occupancy_1D(fig, ax[1][0], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", "Drift Time (ns)", "Entries",  xticks= timebox_ticks )
-                # reset timer
-                t1 = t2 
-            
+            if scint:
+                PLOTS.occupancy_1D(fig_timebox, ax_timebox[0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", "TDC units", "Entries" , xticks= timebox_ticks)
+                PLOTS.occupancy_1D(fig_timebox, ax_timebox[1], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", "TDC units", "Entries",  xticks= timebox_ticks )
+
 except KeyboardInterrupt:
     print ('\nReading stopped.\n')
     f.close()
