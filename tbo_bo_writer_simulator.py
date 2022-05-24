@@ -84,11 +84,11 @@ try:
             for i in range(4):
                 event_time= bxs[i]*25.0 + tdcs[i]*25/30
                 if tr_time-event_time <= 400 and tr_time-event_time >=0 : 
-                    data_f.write(str(deltatime )+' '+str(hit_orbit)+' '+str(channels[i])+' '+str(sorted_bxs[i])+' '+str(tdcs[i])+'\n') 
-            data_f.write(str(deltatime)+' '+str(hit_orbit)+' '+str(hit_ch)+' '+str(hit_bx)+' '+str(hit_tdc)+'\n') 
+                    data_f.write('_ ' +str(deltatime )+' '+str(hit_orbit)+' '+str(channels[i])+' '+str(sorted_bxs[i])+' '+str(tdcs[i])+'\n') 
+            data_f.write('_ ' +str(deltatime)+' '+str(hit_orbit)+' '+str(hit_ch)+' '+str(hit_bx)+' '+str(hit_tdc)+'\n') 
             
         else: 
-            data_f.write(str(deltatime)+' '+str(hit_orbit)+' '+str(hit_ch)+' '+str(hit_bx)+' '+str(hit_tdc)+'\n') 
+            data_f.write('_ ' +str(deltatime)+' '+str(hit_orbit)+' '+str(hit_ch)+' '+str(hit_bx)+' '+str(hit_tdc)+'\n') 
 
         data_f.flush()
 
