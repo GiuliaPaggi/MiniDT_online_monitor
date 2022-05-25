@@ -74,11 +74,11 @@ rate_entries = [0] *64
 rate_2d = np.array([[0]*16]*4, dtype = float)
 
 # ----- set up timebox cumulative and instantaneous -----
-timebox_xaxis = range(1200)
-timebox_entries = [0] *1200
+timebox_xaxis = range(150)
+timebox_entries = [0] *150
 inst_timebox = []
 inst_timebox_entries = [0] *1200
-timebox_ticks = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200]
+timebox_ticks = [0, 25, 50, 75, 100, 125, 150]
 # ------ read file ------
 
 # find the size of the file and set pointer to the end
@@ -111,7 +111,7 @@ try:
             #reset rate histo
             rate_entries = [0] *64 
             rate_2d [rate_2d>0] = 0
-            inst_timebox_entries = [0] *1200
+            inst_timebox_entries = [0] *150
             scint = False
             #check line integrity
             if not line[0].startswith('_'):
@@ -155,7 +155,7 @@ try:
                         hit_time = hit_bx*25.0 + hit_tdc*25/30
                         #compute time diff and fill a histo with bin width = tdc resolution for cumulative timebox
                         time_diff= tr_time - hit_time
-                        index=round(time_diff * 30/25) 
+                        index=round(time_diff * 30/25 *.125) 
                         try: 
                             timebox_entries[index] +=1
                             inst_timebox_entries[index] +=1
@@ -178,8 +178,8 @@ try:
             PLOTS.plot_2D(fig, ax[1][1], rate_2d, "Rate_2D", n_run, "Wire", "Layer")
             
             if scint:
-                PLOTS.save_1D(timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries", xticks= timebox_ticks)
-                PLOTS.save_1D(timebox_xaxis , inst_timebox_entries, "Inst_Timebox",n_run, "TDC units", "Entries", xticks= timebox_ticks)
+                PLOTS.save_1D(timebox_xaxis, timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries", xticks= timebox_ticks)
+                PLOTS.save_1D(timebox_xaxis, inst_timebox_entries, "Inst_Timebox",n_run, "TDC units", "Entries", xticks= timebox_ticks)
                 
                 PLOTS.plot_1D(fig_timebox, ax_timebox[0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
                 PLOTS.plot_1D(fig_timebox, ax_timebox[1], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
