@@ -58,7 +58,8 @@ pins = obdt_connectors['a'] + obdt_connectors['b'] + obdt_connectors['c'] + obdt
 # ----- set interactive mode so that pyplot.show() displays the figures and immediately returns -----
 plt.ion() 
 fig, ax = plt.subplots(2, 2, figsize = (15, 10))
-fig_timebox, ax_timebox = plt.subplots(1, 2, figsize = (15, 10))
+#fig2, ax2 = plt.subplots(2, 1, figsize = (15, 10))
+fig_timebox, ax_timebox = plt.subplots(2, 1, figsize = (15, 10))
 
 # ----- set up 1d channel occupancy -----
 entries = [0] *64 
@@ -73,11 +74,11 @@ rate_entries = [0] *64
 rate_2d = np.array([[0]*16]*4, dtype = float)
 
 # ----- set up timebox cumulative and instantaneous -----
-timebox_xaxis = range(600)
-timebox_entries = [0] *600
+timebox_xaxis = range(1200)
+timebox_entries = [0] *1200
 inst_timebox = []
-inst_timebox_entries = [0] *600
-timebox_ticks = [0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600]
+inst_timebox_entries = [0] *1200
+timebox_ticks = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200]
 # ------ read file ------
 
 # find the size of the file and set pointer to the end
@@ -110,7 +111,7 @@ try:
             #reset rate histo
             rate_entries = [0] *64 
             rate_2d [rate_2d>0] = 0
-            inst_timebox_entries = [0] *600
+            inst_timebox_entries = [0] *1200
             scint = False
             #check line integrity
             if not line[0].startswith('_'):
@@ -140,7 +141,6 @@ try:
                     
                 except ValueError:
                     data_pin=230
-                    print('scintillator event')
                     scint = True
                     #recover trigger hit info
                     tr_systime = float(line[ i ].split(' ')[1])
@@ -155,31 +155,35 @@ try:
                         hit_time = hit_bx*25.0 + hit_tdc*25/30
                         #compute time diff and fill a histo with bin width = tdc resolution for cumulative timebox
                         time_diff= tr_time - hit_time
-                        index=round(time_diff * 30/25)
-                        timebox_entries[index] +=1
-                        inst_timebox_entries[index] +=1
+                        index=round(time_diff * 30/25) 
+                        try: 
+                            timebox_entries[index] +=1
+                            inst_timebox_entries[index] +=1
+                        except IndexError: 
+                            print(time_diff, line[i], line[i-j] )
+                            #sys.exit()
+                        
                         j +=1
 
-                
+                      
 
-            PLOTS.occupancy_1D(fig, ax[0][0], channel, entries, "Entries", "Channel", "Entries")
-            PLOTS.occupancy_2D(fig, ax[1][0], entries_2d, "Entries_2D", "Wire", "Layer")
-            PLOTS.occupancy_1D(fig, ax[0][1], channel, rate_entries, "Rate (Hz)", "Channel", "Rate (Hz)")
-            PLOTS.occupancy_2D(fig, ax[1][1], rate_2d, "Entries_2D", "Wire", "Layer")
+            PLOTS.save_1D(channel, entries, "Entries", n_run, "Channel", "Entries")
+            PLOTS.save_2D(entries_2d, "Entries_2D", n_run, "Wire", "Layer")
+            PLOTS.save_1D(channel, rate_entries, "Rate_(Hz)", n_run, "Channel", "Rate (Hz)")
+            PLOTS.save_2D(rate_2d, "Rate_2D", n_run, "Wire", "Layer")
+
+            PLOTS.plot_1D(fig, ax[0][0], channel, entries, "Entries", n_run, "Channel", "Entries")
+            PLOTS.plot_2D(fig, ax[1][0], entries_2d, "Entries_2D", n_run, "Wire", "Layer")
+            PLOTS.plot_1D(fig, ax[0][1], channel, rate_entries, "Rate (Hz)", n_run, "Channel", "Rate (Hz)")
+            PLOTS.plot_2D(fig, ax[1][1], rate_2d, "Rate_2D", n_run, "Wire", "Layer")
             
             if scint:
-                PLOTS.occupancy_1D(fig_timebox, ax_timebox[0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", "TDC units", "Entries" , xticks= timebox_ticks)
-                PLOTS.occupancy_1D(fig_timebox, ax_timebox[1], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", "TDC units", "Entries",  xticks= timebox_ticks )
+                PLOTS.save_1D(timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries", xticks= timebox_ticks)
+                PLOTS.save_1D(timebox_xaxis , inst_timebox_entries, "Inst_Timebox",n_run, "TDC units", "Entries", xticks= timebox_ticks)
+                
+                PLOTS.plot_1D(fig_timebox, ax_timebox[0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
+                PLOTS.plot_1D(fig_timebox, ax_timebox[1], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
 
 except KeyboardInterrupt:
     print ('\nReading stopped.\n')
     f.close()
-
-
-
-
-
-
-        
-
-
