@@ -3,25 +3,38 @@ import time, os, sys
 import matplotlib.pyplot as plt
 from datetime import datetime
 import numpy as np
+import configparser
 
 import PLOTS
 
-# ----- run number can be passed as an argument from the terminal command line
+
+# ----- import path from configuration file -----
+config= configparser.ConfigParser()
+config.read('/home/gpaggi/dtupy/scripts/config.txt')
+
+data_path = config.get('path', 'DataFolderPath')
+plot_path = config.get('path', 'PlotFolderPath')
+live_path = config.get('path', 'LiveFolderPath')
+
+# ----- run number can be passed as an argument from the terminal command line -----
 
 if len(sys.argv)>1:
     n_run = sys.argv[1] 
+# if run number is not given, read runs log files to find the current one 
 else :
-    n_run = int( input('No run number specified. Enter the run number and press the enter key (to use the simulated data file, enter -1):\n') )
-
+    log_file = open(data_path+'Runs_Configurations.txt', 'r')
+    n_run = int(log_file.readlines()[-1].split(' ')[0]) + 1
+    run_name = "Run_" + str(n_run)
+    
 # ----- to use the file generated with the simulator use r_number = -1 -----
 if n_run == -1: 
     filename = "FakeRun.txt"
 else : 
-    filename = "/home/gpaggi/dtupy/scripts/MiniDT_Runs/Run_" + str(n_run) + ".txt"             
+    filename =  run_name + ".txt"             
 
 # ----- check if the file exists, close the program if it does not -----
-if os.path.exists(filename):
-    f = open(filename, 'r')
+if os.path.exists(data_path+filename):
+    f = open(data_path+filename, 'r')
     print(datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+ ' Reading ' + filename )
 
 else:
@@ -56,7 +69,7 @@ pins = obdt_connectors['a'] + obdt_connectors['b'] + obdt_connectors['c'] + obdt
 
 
 # ----- set interactive mode so that pyplot.show() displays the figures and immediately returns -----
-plt.ion() 
+#plt.ion() 
 fig, ax = plt.subplots(2, 2, figsize = (15, 10))
 #fig2, ax2 = plt.subplots(2, 1, figsize = (15, 10))
 fig_timebox, ax_timebox = plt.subplots(2, 1, figsize = (15, 10))
@@ -74,15 +87,15 @@ rate_entries = [0] *64
 rate_2d = np.array([[0]*16]*4, dtype = float)
 
 # ----- set up timebox cumulative and instantaneous -----
-timebox_xaxis = range(150)
-timebox_entries = [0] *150
+timebox_xaxis = range(200)
+timebox_entries = [0] *200
 inst_timebox = []
-inst_timebox_entries = [0] *1200
+inst_timebox_entries = [0] *200
 timebox_ticks = [0, 25, 50, 75, 100, 125, 150]
 # ------ read file ------
 
 # find the size of the file and set pointer to the end
-st_results = os.stat(filename)
+st_results = os.stat(data_path+filename)
 st_size = st_results[6]
 f.seek(st_size)
 
@@ -111,7 +124,7 @@ try:
             #reset rate histo
             rate_entries = [0] *64 
             rate_2d [rate_2d>0] = 0
-            inst_timebox_entries = [0] *150
+            inst_timebox_entries = [0] *200
             scint = False
             #check line integrity
             if not line[0].startswith('_'):
@@ -154,7 +167,7 @@ try:
                         hit_tdc = int( line[ i-j ].split(' ')[5].strip('\n') )
                         hit_time = hit_bx*25.0 + hit_tdc*25/30
                         #compute time diff and fill a histo with bin width = tdc resolution for cumulative timebox
-                        time_diff= tr_time - hit_time
+                        time_diff= hit_time - tr_time + 1000
                         index=round(time_diff * 30/25 *.125) 
                         try: 
                             timebox_entries[index] +=1
@@ -167,23 +180,32 @@ try:
 
                       
 
-            PLOTS.save_1D(channel, entries, "Entries", n_run, "Channel", "Entries")
-            PLOTS.save_2D(entries_2d, "Entries_2D", n_run, "Wire", "Layer")
-            PLOTS.save_1D(channel, rate_entries, "Rate_(Hz)", n_run, "Channel", "Rate (Hz)")
-            PLOTS.save_2D(rate_2d, "Rate_2D", n_run, "Wire", "Layer")
+            PLOTS.save_1D(live_path, channel, entries, "Entries", run_name, "Channel", "Entries")
+            PLOTS.save_2D(live_path, entries_2d, "Entries_2D", run_name, "Wire", "Layer")
+            PLOTS.save_1D(live_path, channel, rate_entries, "Rate_(Hz)", run_name, "Channel", "Rate (Hz)")
+            PLOTS.save_2D(live_path, rate_2d, "Rate_2D", run_name, "Wire", "Layer")
 
-            PLOTS.plot_1D(fig, ax[0][0], channel, entries, "Entries", n_run, "Channel", "Entries")
-            PLOTS.plot_2D(fig, ax[1][0], entries_2d, "Entries_2D", n_run, "Wire", "Layer")
-            PLOTS.plot_1D(fig, ax[0][1], channel, rate_entries, "Rate (Hz)", n_run, "Channel", "Rate (Hz)")
-            PLOTS.plot_2D(fig, ax[1][1], rate_2d, "Rate_2D", n_run, "Wire", "Layer")
+            # PLOTS.plot_1D(fig, ax[0][0], channel, entries, "Entries", n_run, "Channel", "Entries")
+            # PLOTS.plot_2D(fig, ax[1][0], entries_2d, "Entries_2D", n_run, "Wire", "Layer")
+            # PLOTS.plot_1D(fig, ax[0][1], channel, rate_entries, "Rate (Hz)", n_run, "Channel", "Rate (Hz)")
+            # PLOTS.plot_2D(fig, ax[1][1], rate_2d, "Rate_2D", n_run, "Wire", "Layer")
             
             if scint:
-                PLOTS.save_1D(timebox_xaxis, timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries", xticks= timebox_ticks)
-                PLOTS.save_1D(timebox_xaxis, inst_timebox_entries, "Inst_Timebox",n_run, "TDC units", "Entries", xticks= timebox_ticks)
+                PLOTS.save_1D(live_path, timebox_xaxis, timebox_entries, "Cumulative_Timebox", run_name, "TDC units", "Entries", xticks= timebox_ticks)
+                PLOTS.save_1D(live_path, timebox_xaxis, inst_timebox_entries, "Inst_Timebox",run_name, "TDC units", "Entries", xticks= timebox_ticks)
                 
-                PLOTS.plot_1D(fig_timebox, ax_timebox[0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
-                PLOTS.plot_1D(fig_timebox, ax_timebox[1], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
+                # PLOTS.plot_1D(fig_timebox, ax_timebox[0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
+                # PLOTS.plot_1D(fig_timebox, ax_timebox[1], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
 
+                
 except KeyboardInterrupt:
     print ('\nReading stopped.\n')
+    dir_path = plot_path+run_name+'/'
+    if not os.path.exists(dir_path):
+        os.mkdir(dir_path)
+        
+    PLOTS.save_1D(dir_path, channel, entries, "Entries", run_name, "Channel", "Entries")
+    PLOTS.save_2D(dir_path, entries_2d, "Entries_2D", run_name, "Wire", "Layer")
+    PLOTS.save_1D(dir_path, timebox_xaxis, timebox_entries, "Cumulative_Timebox", run_name, "TDC units", "Entries", xticks= timebox_ticks)
+  
     f.close()
