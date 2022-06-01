@@ -51,19 +51,24 @@ For example, when acquiring the run 32 file, the monitor can be called using
 > user@host $  python tbo_bo_reader.py 32
 
 
-If no run number is passed as a parameter, the user is asked to specify it before the program begins, and the simulated file is identified by -1.
-
-
+If no run number is passed as a parameter, the code opens the past runs' log file and computes the current run number. The simulated file run number is identified by -1 and has to be passed as a parameter.
+<!-- the user is asked to specify it before the program begins, and the simulated file is identified by -1. 
 > user@host $ python tbo_bo_reader.py 
-> 'No run number specified. Enter the run number and press the enter key (to use the simulated data file, enter -1):
+> 'No run number specified. Enter the run number and press the enter key (to use the simulated data file, enter -1): -->
+
+
+
+
+
 
 ## Structure of the project
 The project is divided in the following way:
-- **tbo_bo_reader.py**:  the file that reads the run data file during the data taking and manages the online monitor. Every 30 seconds, it reads all lines that were written on the file in the elapsed time, and displays the updated plots;
+- **tbo_bo_reader.py**:  the file that reads the run data file during the data taking and manages the online monitor. Every 30 seconds, it reads all lines that were written on the file in the elapsed time, and displays and saves the updated plots. When it is closed, it saves all the cumulative plots in a folder with the run name. The paths of the folders (the data file, and where the plots should be saved) is set via the configuration file ;
 - **PLOTS.py**: file in which the plotting functions for the monitor are defined;
 - **tbo_bo_writer_simulator.py**: the simulator of one MiniDT chamber readout, writes a line in a text file every 0.1s with randomly generated hits;
 - **SORT.py**: file in which the sorting function of the simulator is defined;
 - **test_writer.py**: test file for the simulator function.
+- **config.txt**: text file containig the folders paths necessary for finding the data file and correctl save the plots.
 
 ## Output
 #### Cumulative occupancy 
@@ -73,7 +78,9 @@ The project is divided in the following way:
 
 
 #### Instantaneous rate
-The plot shows the rate in the last 30s of data taking. It can help identify external sources of noise.
+- per channel: the plot shows the rate in the last 30s of data taking. It can help identify transient external sources of noise.
+
+-2D: the plot shows the rate on a 2D map, each rectangle represents one of the chamber cells. It can help identify channels with high transient noise.
 
 #### Cumulative timebox
 The plot shows the time difference between the scintillator signal and the chamber response. It depends on the drift time of the electrons in the cells and it can help to identify problems in the gas distribution inside the chamber.
@@ -97,4 +104,5 @@ The project is developed in a python 3.9 environment, using the following module
 
 
 ## Project Status
-The project is in progress. At the moment it's possible to visualize the channels occupancy, the 2D chamber occupancy, the rate of the last 30s, the timebox of the whole run, and of the last 30s of data taking. 
+The project is in progress. At the moment it's possible to visualize the channels occupancy, the 2D chamber occupancy, the rate of the last 30s both per channel and in the 2D configuration, the timebox of the whole run, and of the last 30s of data taking. 
+The produced plots are also saved in .PNG format.
