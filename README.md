@@ -73,21 +73,28 @@ The project is divided in the following way:
 ## Output
 #### Cumulative occupancy 
 - per channel: the plot shows the cumulative hits in each channel of a MiniDT chamber, numbered from 0 to 63.
+<img src="https://github.com/GiuliaPaggi/MiniDT_online_monitor/blob/main/plot_examples/Entries.PNG" width="600">
+
 
 - 2D: the plot shows the cumulative hits on a 2D map, each rectangle represents one of the chamber cells. The occupancy plot helps in identifying channels with high noise rates or, on the other side, channels with a reduced rate.
+<img src="https://github.com/GiuliaPaggi/MiniDT_online_monitor/blob/main/plot_examples/Entries_2D.PNG" width="600">
 
 
 #### Instantaneous rate
 - per channel: the plot shows the rate in the last 30s of data taking. It can help identify transient external sources of noise.
+<img src="https://github.com/GiuliaPaggi/MiniDT_online_monitor/blob/main/plot_examples/Rate_(Hz).PNG" width="600">
 
 -2D: the plot shows the rate on a 2D map, each rectangle represents one of the chamber cells. It can help identify channels with high transient noise.
 
+<img src="https://github.com/GiuliaPaggi/MiniDT_online_monitor/blob/main/plot_examples/Rate_2D.PNG" width="600">
+
 #### Cumulative timebox
 The plot shows the time difference between the scintillator signal and the chamber response. It depends on the drift time of the electrons in the cells and it can help to identify problems in the gas distribution inside the chamber.
+<img src="https://github.com/GiuliaPaggi/MiniDT_online_monitor/blob/main/plot_examples/Cumulative_Timebox.PNG" width="600">
 
 #### Instantaneous timebox
 The plot shows the time difference between the scintillator signal and the chamber response in the last 30s of events.
-
+<img src="https://github.com/GiuliaPaggi/MiniDT_online_monitor/blob/main/plot_examplesInst_Timebox.PNG" width="600">
 
 <!--## Screenshots
 ![Example screenshot](./img/screenshot.png)
