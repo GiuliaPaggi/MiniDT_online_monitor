@@ -98,19 +98,21 @@ The plot shows the time difference between the scintillator signal and the chamb
 <!-- If you have screenshots you'd like to share, include them here. -->
 
 ## Dependencies
-The monitor project is developed in a python 3.9 environment, using the following modules: 
-- matplotlib 
-- time 
-- sys 
-- os
-- datetime
-- numpy 
+All the modules can be also found in the dependencies.txt file.
+In particular, the monitor project is developed in a python 3.9 environment, using the following modules: 
 - configparser
+- datetime
+- matplotlib 
+- numpy 
+- os
+- sys
+- time
 
 Additionaly, for the readout simulator, the following modules are used:
-- time
 - datetime
 - random 
 - sys
+- time
+
 
 
