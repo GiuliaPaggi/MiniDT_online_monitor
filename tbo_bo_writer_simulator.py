@@ -1,20 +1,8 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat May 21 11:29:16 2022
-
-@author: Giulia Paggi
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Tue May 17 12:42:55 2022
-
-@author: Giulia Paggi
-"""
 import time
 from datetime import datetime
 import random 
 import sys
+
 import SORT
 
 
