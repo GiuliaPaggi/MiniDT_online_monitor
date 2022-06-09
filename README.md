@@ -1,20 +1,17 @@
 # MiniDT_online_monitor
 MiniDTs online monitor project. Show occupancy plots, rate, and timebox in real-time.
 
+## Project Status
+The project is in progress. At the moment it's possible to visualize the channels occupancy, the 2D chamber occupancy, the rate of the last 30s both per channel and in the 2D configuration, the timebox of the whole run, and of the last 30s of data taking. 
+The produced plots are saved in .PNG format in a specific folder that can be specified using the configuration file, and refreshed every 30s. 
+When the user closes the monitor program, a copy of the cumulative plots are saved in a new folder with the run name at a path choosen by the user via the configuration file.
+
 ## Table of Contents
 * [General Info](#general-information)
 * [Usage](#usage)
 * [Structure of the project](#structure-of-the-project)
 * [Output](#output)
-* [Technologies Used](#technologies-used)
-* [Project Status](#project-status)
-
-<!-- * [Features](#features)
-* [Screenshots](#screenshots) 
---* [Setup](#setup)
-  -->
-
-<!-- * [Room for Improvement](#room-for-improvement) -->
+* [Dependencies](#dependencies)
 
 
 
@@ -100,16 +97,20 @@ The plot shows the time difference between the scintillator signal and the chamb
 ![Example screenshot](./img/screenshot.png)
 <!-- If you have screenshots you'd like to share, include them here. -->
 
-## Technologies Used
-The project is developed in a python 3.9 environment, using the following modules: 
-- Matplotlib - version 3.5
+## Dependencies
+The monitor project is developed in a python 3.9 environment, using the following modules: 
+- matplotlib 
 - time 
 - sys 
 - os
 - datetime
 - numpy 
+- configparser
+
+Additionaly, for the readout simulator, the following modules are used:
+- time
+- datetime
+- random 
+- sys
 
 
-## Project Status
-The project is in progress. At the moment it's possible to visualize the channels occupancy, the 2D chamber occupancy, the rate of the last 30s both per channel and in the 2D configuration, the timebox of the whole run, and of the last 30s of data taking. 
-The produced plots are also saved in .PNG format.
