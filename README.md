@@ -26,7 +26,6 @@ This project aims to develop an online monitor that can allow for a check of the
 The focus is on the occupancy of each channel and the time difference between the scintillator and the MiniDTs front-end signals. The first allows identifying during the data taking dead or particularly noisy channels.
 The latter is related to the linearity of the MiniDT's space-time response, which depends on the electrons' drift velocity in the chamber.
 It can help identify inhomogeneities in the gas distribution or problems in the cells' electric field configurations. 
-<!-- You don't have to answer all the questions - just the ones relevant to your project. -->
 
 ## Usage
 This project is meant to be used on the text file written by the MiniDTs acquisition program. Each line in this file is one event recorded in the detector's channels or on the scintillator planes.
@@ -48,10 +47,11 @@ For example, when acquiring the run 32 file, the monitor can be called using
 > user@host $  python tbo_bo_reader.py 32
 
 
-If no run number is passed as a parameter, the code opens the past runs' log file and computes the current run number. The simulated file run number is identified by -1 and has to be passed as a parameter.
+If no run number is passed as a parameter, the code opens the previous runs' log file and computes the current run number. The simulated file run number is identified by -1 and has to be passed as a parameter.
 <!-- the user is asked to specify it before the program begins, and the simulated file is identified by -1. 
 > user@host $ python tbo_bo_reader.py 
 > 'No run number specified. Enter the run number and press the enter key (to use the simulated data file, enter -1): -->
+
 
 
 
@@ -65,7 +65,7 @@ The project is divided in the following way:
 - **tbo_bo_writer_simulator.py**: the simulator of one MiniDT chamber readout, writes a line in a text file every 0.1s with randomly generated hits;
 - **SORT.py**: file in which the sorting function of the simulator is defined;
 - **test_writer.py**: test file for the simulator function.
-- **config.txt**: text file containig the folders paths necessary for finding the data file and correctl save the plots.
+- **config.txt**: text file containig the folders paths necessary for finding the data file and correctly save the plots. Through the configuration file, the user can choose whether to display the plots or to just save them.
 
 ## Output
 #### Cumulative occupancy 
