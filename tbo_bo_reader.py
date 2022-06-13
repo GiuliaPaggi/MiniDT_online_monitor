@@ -70,12 +70,11 @@ wire=[1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,9,9,9,9,10
 channel = range(64)
 pins = obdt_connectors['a'] + obdt_connectors['b'] + obdt_connectors['c'] + obdt_connectors['d']
 
-
-# ----- set interactive mode so that pyplot.show() displays the figures and immediately returns -----
-#plt.ion() 
-fig, ax = plt.subplots(2, 2, figsize = (15, 10))
-#fig2, ax2 = plt.subplots(2, 1, figsize = (15, 10))
-fig_timebox, ax_timebox = plt.subplots(2, 1, figsize = (15, 10))
+if show_plt:
+    # ----- set interactive mode so that pyplot.show() displays the figures and immediately returns ----
+    plt.ion() 
+    fig, ax = plt.subplots(2, 2, figsize = (15, 10))
+    fig_timebox, ax_timebox = plt.subplots(2, 1, figsize = (15, 10))
 
 # ----- set up 1d channel occupancy -----
 entries = [0] *64 
