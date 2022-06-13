@@ -14,7 +14,7 @@ config.read('/home/gpaggi/dtupy/scripts/config.txt')
 data_path = config.get('path', 'DataFolderPath')
 plot_path = config.get('path', 'PlotFolderPath')
 live_path = config.get('path', 'LiveFolderPath')
-
+show_plt = config.getboolean('option', 'ShowPlots')
 # ----- run number can be passed as an argument from the terminal command line -----
 
 if len(sys.argv)>1:
@@ -183,18 +183,19 @@ try:
             PLOTS.save_2D(live_path, entries_2d, "Entries_2D", run_name, "Wire", "Layer")
             PLOTS.save_1D(live_path, channel, rate_entries, "Rate_(Hz)", run_name, "Channel", "Rate (Hz)")
             PLOTS.save_2D(live_path, rate_2d, "Rate_2D", run_name, "Wire", "Layer")
-
-            # PLOTS.plot_1D(fig, ax[0][0], channel, entries, "Entries", n_run, "Channel", "Entries")
-            # PLOTS.plot_2D(fig, ax[1][0], entries_2d, "Entries_2D", n_run, "Wire", "Layer")
-            # PLOTS.plot_1D(fig, ax[0][1], channel, rate_entries, "Rate (Hz)", n_run, "Channel", "Rate (Hz)")
-            # PLOTS.plot_2D(fig, ax[1][1], rate_2d, "Rate_2D", n_run, "Wire", "Layer")
+            
+            if show_plt:
+                PLOTS.plot_1D(fig, ax[0][0], channel, entries, "Entries", n_run, "Channel", "Entries")
+                PLOTS.plot_2D(fig, ax[1][0], entries_2d, "Entries_2D", n_run, "Wire", "Layer")
+                PLOTS.plot_1D(fig, ax[0][1], channel, rate_entries, "Rate (Hz)", n_run, "Channel", "Rate (Hz)")
+                PLOTS.plot_2D(fig, ax[1][1], rate_2d, "Rate_2D", n_run, "Wire", "Layer")
             
             if scint:
                 PLOTS.save_1D(live_path, timebox_xaxis, timebox_entries, "Cumulative_Timebox", run_name, "TDC units", "Entries", xticks= timebox_ticks)
                 PLOTS.save_1D(live_path, timebox_xaxis, inst_timebox_entries, "Inst_Timebox",run_name, "TDC units", "Entries", xticks= timebox_ticks)
-                
-                # PLOTS.plot_1D(fig_timebox, ax_timebox[0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
-                # PLOTS.plot_1D(fig_timebox, ax_timebox[1], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
+                if show_plt :
+                    PLOTS.plot_1D(fig_timebox, ax_timebox[0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
+                    PLOTS.plot_1D(fig_timebox, ax_timebox[1], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
 
                 
 except KeyboardInterrupt:

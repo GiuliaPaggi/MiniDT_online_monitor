@@ -6,3 +6,5 @@
 DataFolderPath = /home/gpaggi/dtupy/scripts/MiniDT_Runs/
 PlotFolderPath = /home/gpaggi/DQM_www/
 LiveFolderPath = /home/gpaggi/DQM_www/Live/
+[option]
+ShowPlots = False
