@@ -14,6 +14,7 @@ config.read('/home/gpaggi/dtupy/scripts/config.txt')
 data_path = config.get('path', 'DataFolderPath')
 plot_path = config.get('path', 'PlotFolderPath')
 live_path = config.get('path', 'LiveFolderPath')
+logfile_path = config.get('file', 'LogFile')
 show_plt = config.getboolean('option', 'ShowPlots')
 # ----- run number can be passed as an argument from the terminal command line -----
 
@@ -21,8 +22,8 @@ if len(sys.argv)>1:
     n_run = sys.argv[1] 
 # if run number is not given, read runs log files to find the current one 
 else :
-    if os.path.exists(data_path+'Runs_Configurations.txt'):
-        log_file = open(data_path+'Runs_Configurations.txt', 'r')
+    if os.path.exists(logfile_path):
+        log_file = open(logfile_path, 'r')
         n_run = int(log_file.readlines()[-1].split(' ')[0]) + 1
         run_name = "Run_" + str(n_run)
     else :
