@@ -21,9 +21,12 @@ if len(sys.argv)>1:
     n_run = sys.argv[1] 
 # if run number is not given, read runs log files to find the current one 
 else :
-    log_file = open(data_path+'Runs_Configurations.txt', 'r')
-    n_run = int(log_file.readlines()[-1].split(' ')[0]) + 1
-    run_name = "Run_" + str(n_run)
+    if os.path.exists(data_path+'Runs_Configurations.txt'):
+        log_file = open(data_path+'Runs_Configurations.txt', 'r')
+        n_run = int(log_file.readlines()[-1].split(' ')[0]) + 1
+        run_name = "Run_" + str(n_run)
+    else :
+        n_run = -1
     
 # ----- to use the file generated with the simulator use r_number = -1 -----
 if n_run == -1: 
