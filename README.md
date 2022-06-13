@@ -2,9 +2,9 @@
 MiniDTs online monitor project. Show occupancy plots, rate, and timebox in real-time.
 
 ## Project Status
-The project is in progress. At the moment it's possible to visualize the channels occupancy, the 2D chamber occupancy, the rate of the last 30s both per channel and in the 2D configuration, the timebox of the whole run, and of the last 30s of data taking. 
+The project is in progress. At the moment it's possible to visualize the channels' occupancy, the 2D chamber occupancy, the rate of the last 30s both per channel and in the 2D configuration, the timebox of the whole run, and the last 30s of data taking. 
 The produced plots are saved in .PNG format in a specific folder that can be specified using the configuration file, and refreshed every 30s. 
-When the user closes the monitor program, a copy of the cumulative plots are saved in a new folder with the run name at a path choosen by the user via the configuration file.
+When the user closes the monitor program, a copy of the cumulative plots is saved in a new folder with the run name at a path chosen by the user via the configuration file.
 
 ## Table of Contents
 * [General Info](#general-information)
@@ -16,7 +16,7 @@ When the user closes the monitor program, a copy of the cumulative plots are sav
 
 
 ## General Information
-Using spare material from the original CMS DT chambers, eight smaller size SLs, called MiniDTs were built at INFN Legnaro National Laboratory in Padova. 
+Using spare material from the original CMS DT chambers, eight smaller-size SLs, called MiniDTs, were built at INFN Legnaro National Laboratory in Padova. 
 Using two of these MiniDTs we aim to install a cosmic rays telescope and test its efficiency and resolution. 
 The MiniDTs are operated with the same high voltage and gas mixture condition used in CMS.
 The signals on the front end are read using two boards: an On-detector Board for Drift Tube (OBDT) version 1 for the time to digital conversion, and a Xilinx Virtex-7 FPGA VC707 that provides the simulated LHC clock and can be used to implement the slow control.  
@@ -47,25 +47,25 @@ For example, when acquiring the run 32 file, the monitor can be called using
 > user@host $  python tbo_bo_reader.py 32
 
 
-If no run number is passed as a parameter, the code opens the previous runs' log file and computes the current run number. The simulated file run number is identified by -1 and has to be passed as a parameter.
-<!-- the user is asked to specify it before the program begins, and the simulated file is identified by -1. 
-> user@host $ python tbo_bo_reader.py 
-> 'No run number specified. Enter the run number and press the enter key (to use the simulated data file, enter -1): -->
+The simulated file run number is identified by -1 and has to be passed as a parameter.
+If no run number is passed as a parameter, the code opens the previous runs' log file and computes the current run number. If there is no such file, the program assumes the simulated file is being used. 
 
-
-
-
+Before running the monitor program, the user needs to specify in the configuration file the paths to the data and runs' log files, where the refreshing plots should be saved and where the cumulative ones should be saved at the conclusion of the monitoring session.   
+Through the configuration file, the user can decide if the plots are to be shown during the program execution or only saved in the chosen folders.
+When the monitor starts, it moves to the end of the text file produced by the MiniDTs acquisition program and reads the newly written lines every 30 seconds.
+With these data, it builds the rate and instantaneous timebox plots that are refreshed at each reading, and it stores them in the cumulative occupancy and timebox plots.
+When the user closes the monitor program, a copy of the cumulative plots is saved in a new folder with the run name at a path chosen by the user via the configuration file.
 
 
 
 ## Structure of the project
 The project is divided in the following way:
-- **tbo_bo_reader.py**:  the file that reads the run data file during the data taking and manages the online monitor. Every 30 seconds, it reads all lines that were written on the file in the elapsed time, and displays and saves the updated plots. When it is closed, it saves all the cumulative plots in a folder with the run name. The paths of the folders (the data file, and where the plots should be saved) is set via the configuration file ;
+- **tbo_bo_reader.py**:  the file that reads the run data file during the data taking and manages the online monitor. Every 30 seconds, it reads all lines that were written on the file in the elapsed time, and displays, if the user selected the option via configuration file, and saves the updated plots. When it is closed, it saves all the cumulative plots in a folder with the run name. The paths of the folders (the data file, past runs log file, and where the plots should be saved) are set via the configuration file ;
 - **PLOTS.py**: file in which the plotting functions for the monitor are defined;
 - **tbo_bo_writer_simulator.py**: the simulator of one MiniDT chamber readout, writes a line in a text file every 0.1s with randomly generated hits;
 - **SORT.py**: file in which the sorting function of the simulator is defined;
 - **test_writer.py**: test file for the simulator function.
-- **config.txt**: text file containig the folders paths necessary for finding the data file and correctly save the plots. Through the configuration file, the user can choose whether to display the plots or to just save them.
+- **config.txt**: the text file containing the folder paths necessary for finding the data file and correctly saving the plots. Through the configuration file, the user can choose whether to display the plots or to just save them.
 
 ## Output
 #### Cumulative occupancy 
@@ -91,7 +91,7 @@ The plot shows the time difference between the scintillator signal and the chamb
 
 #### Instantaneous timebox
 The plot shows the time difference between the scintillator signal and the chamber response in the last 30s of events.
-<img src="https://github.com/GiuliaPaggi/MiniDT_online_monitor/blob/main/plot_examplesInst_Timebox.PNG" width="600">
+<img src="https://github.com/GiuliaPaggi/MiniDT_online_monitor/blob/main/plot_examples/Inst_Timebox.PNG" width="600">
 
 <!--## Screenshots
 ![Example screenshot](./img/screenshot.png)
@@ -99,6 +99,7 @@ The plot shows the time difference between the scintillator signal and the chamb
 
 ## Dependencies
 All the modules can be also found in the dependencies.txt file.
+
 In particular, the monitor project is developed in a python 3.9 environment, using the following modules: 
 - configparser
 - datetime
@@ -108,7 +109,7 @@ In particular, the monitor project is developed in a python 3.9 environment, usi
 - sys
 - time
 
-Additionaly, for the readout simulator, the following modules are used:
+Additionally, for the readout simulator, the following modules are used:
 - datetime
 - random 
 - sys
