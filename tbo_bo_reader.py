@@ -93,7 +93,7 @@ timebox_xaxis = range(200)
 timebox_entries = [0] *200
 inst_timebox = []
 inst_timebox_entries = [0] *200
-timebox_ticks = [0, 25, 50, 75, 100, 125, 150]
+timebox_ticks = [0, 25, 50, 75, 100, 125, 150, 175, 200]
 # ------ read file ------
 
 # find the size of the file and set pointer to the end
