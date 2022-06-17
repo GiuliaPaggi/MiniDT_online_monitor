@@ -226,8 +226,7 @@ try:
                         
                         j +=1
 
-                      
-            print(datetime.now().strftime("%Y/%m/%d - %H:%M:%S"), flush=True)
+
             PLOTS.save_1D(live_path, channel, entries, "Entries", run_name, "Channel", "Entries")
             PLOTS.save_2D(live_path, entries_2d, "Entries_2D", run_name, "Wire", "Layer")
             PLOTS.save_1D(live_path, channel, rate_entries, "Rate", run_name, "Channel", "Rate (Hz)")

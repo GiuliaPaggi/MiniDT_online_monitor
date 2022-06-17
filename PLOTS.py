@@ -274,7 +274,7 @@ def update_monitor(path, placeholder, image_names):
     images = [Image.open(x) for x in image_names]
     #updates monitor web page
     with placeholder.container():
-        fig_col1, fig_col2 = st.columns(2)
+        fig_col1, fig_col2 = st.columns([2, 3])
         with fig_col1:
             st.markdown("### Occupancy Monitor")
             st.image(images[0])
