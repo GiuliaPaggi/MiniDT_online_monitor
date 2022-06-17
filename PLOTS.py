@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from datetime import datetime
-import glob
+import os
 from PIL import Image
 
 def plot_1D(figure, ax, ch, entries, title, run_number,  xlabel, ylabel, xticks=[0, 8, 16, 24, 32, 40, 48, 56, 63]):
@@ -36,7 +36,11 @@ def plot_1D(figure, ax, ch, entries, title, run_number,  xlabel, ylabel, xticks=
         
     xticks : list
         Labels of x axis ticks. The default value is for 1 MiniDT chamber channels.
-        
+    
+    Returns
+    -------
+    None.
+    
     """
     run_title = "Run " + str(run_number) 
     ax.cla()
@@ -77,7 +81,11 @@ def plot_2D(figure, ax, entries, title, run_number, xlabel, ylabel):
     
     ylabel : string
         Label of y axis
-        
+    
+    Returns
+    -------
+    None.  
+      
     """
     run_title = "Run " + str(run_number) 
     ax.cla()
@@ -122,6 +130,10 @@ def save_1D(path, ch, entries, title, namerun, xlabel, ylabel, xticks=[0, 8, 16,
     xticks : list
         Labels of x axis ticks. The default value is for 1 MiniDT chamber channels.
         
+    Returns
+    -------
+    None.
+    
     """
     
     fig_s, ax_s = plt.subplots(1, 1, figsize = (15, 10))
@@ -164,6 +176,10 @@ def save_2D(path, entries, title, namerun , xlabel, ylabel):
     ylabel : string
         Label of y axis
         
+    Returns
+    -------
+    None.
+        
     """
     
     fig_s, ax_s = plt.subplots(1, 1, figsize = (15, 10))
@@ -178,7 +194,7 @@ def save_2D(path, entries, title, namerun , xlabel, ylabel):
     fig_s.savefig(path+title+'.PNG')
     plt.close()
 
-def make_monitor( path, image_names , chamber_number = ''):
+def make_monitor( path, image_names , monitor_name , chamber_number = ''):
     """
     
 
@@ -186,8 +202,13 @@ def make_monitor( path, image_names , chamber_number = ''):
     ----------
     path : string
         path to the directory in which the produced image will be saved
+        
     image_names : list
         list of all the images to put in the monitor 
+        
+    title : string
+        string with image name 
+        
     chamber_number : strng, optional
         chamber number, to distinguish the two chambers monitors. The default is '' since only one is working at the moment.
 
@@ -196,7 +217,8 @@ def make_monitor( path, image_names , chamber_number = ''):
     None.
 
     """
-    
+    original_path = os.getcwd()
+    os.chdir(path)
     images = [Image.open(x) for x in image_names]
     widths, heights = zip(*(i.size for i in images))
 
@@ -216,9 +238,12 @@ def make_monitor( path, image_names , chamber_number = ''):
       x_offset += widths[0]
      
     if not chamber_number == '' :
-        title = 'Chamber_'+chamber_number+'_monitor.PNG'
+        title = 'Chamber_'+chamber_number++'_'+monitor_name+'_monitor.PNG'
     else:
-        title = 'monitor.PNG'
+        title = monitor_name+'monitor.PNG'
     
-    new_im.save(path+title)
+    new_im.save(title)
+    os.chdir( original_path)
+
+
     

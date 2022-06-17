@@ -15,7 +15,7 @@ config_file = '/home/gpaggi/dtupy/scripts/config.txt'
 if os.path.exists(config_file): 
     config.read(config_file)     
 else : 
-    #print( 'Select the configuration file', flush=True)
+    print( 'Select the configuration file', flush=True)
     Tk().withdraw()
     config_file = askopenfilename()
     config.read(config_file)
@@ -44,7 +44,9 @@ else :
 if n_run == -1: 
     data_path = ''
     plot_path = ''
-    live_path = ''
+    live_path = run_name+'_live/'
+    if not os.path.exists(live_path):
+        os.mkdir(live_path)
     filename = "FakeRun.txt"
 else : 
     filename =  run_name + ".txt"             
@@ -224,6 +226,7 @@ try:
             PLOTS.save_1D(live_path, channel, rate_entries, "Rate", run_name, "Channel", "Rate (Hz)")
             PLOTS.save_2D(live_path, rate_2d, "Rate_2D", run_name, "Wire", "Layer")
             images_list = ['Entries.PNG', 'Entries_2D.PNG', 'Rate.PNG', 'Rate_2D.PNG']
+            PLOTS.make_monitor(live_path, images_list, 'occupancy')
             
             if show_plt:
                 PLOTS.plot_1D(fig, ax[0][0], channel, entries, "Entries", n_run, "Channel", "Entries")
@@ -238,20 +241,22 @@ try:
                 PLOTS.save_2D(live_path, scint_entries_2d, "Scintillator_event_entries_2D", run_name, "Wire", "Layer")
                 PLOTS.save_1D(live_path, channel, scint_rate, "Scintillator_event_rate", run_name, "Channel", "Rate (Hz)")
                 PLOTS.save_2D(live_path, scint_rate_2d, "Scintillator_event_rate_2D", run_name, "Wire", "Layer")
-                images_list = ['Entries.PNG', 'Entries_2D.PNG', 'Cumulative_Timebox.PNG', "Scintillator_event_entries", "Scintillator_event_rate"
-                               'Rate.PNG', 'Rate_2D.PNG', 'Inst_Timebox.PNG', "Scintillator_event_rate", "Scintillator_event_rate_2D"]
-
+                scint_list = ['Cumulative_Timebox.PNG', "Scintillator_event_entries.PNG", "Scintillator_event_rate.PNG",
+                                'Inst_Timebox.PNG', "Scintillator_event_rate.PNG", "Scintillator_event_rate_2D.PNG"]
+                PLOTS.make_monitor(live_path, scint_list, 'scintillator')
                 
                 if show_plt :
                     PLOTS.plot_1D(fig_timebox, ax_timebox[0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
                     PLOTS.plot_1D(fig_timebox, ax_timebox[1], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
             
-            PLOTS.make_monitor(live_path, images_list)
+
                 
 except KeyboardInterrupt:
     print ('\nReading stopped.\n') 
     if n_run == -1 :
-        dir_path = ''
+        dir_path = run_name+'/'
+        if not os.path.exists(dir_path):
+            os.mkdir(dir_path)
     else:
         dir_path = plot_path+run_name+'/'
         if not os.path.exists(dir_path):
