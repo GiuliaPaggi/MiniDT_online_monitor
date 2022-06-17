@@ -3,6 +3,8 @@ datetime
 matplotlib
 numpy
 os
+PIL
 random
 sys
 time
+tkinter
