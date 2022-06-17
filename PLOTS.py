@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import os
 from PIL import Image
+import streamlit as st
+
 
 def plot_1D(figure, ax, ch, entries, title, run_number,  xlabel, ylabel, xticks=[0, 8, 16, 24, 32, 40, 48, 56, 63]):
     """    
@@ -240,9 +242,46 @@ def make_monitor( path, image_names , monitor_name , chamber_number = ''):
     if not chamber_number == '' :
         title = 'Chamber_'+chamber_number++'_'+monitor_name+'_monitor.PNG'
     else:
-        title = monitor_name+'monitor.PNG'
+        title = monitor_name+'_monitor.PNG'
     
     new_im.save(title)
+    os.chdir( original_path)
+    
+    
+def update_monitor(path, placeholder, image_names):
+    """
+    
+
+    Parameters
+    ----------
+    path : string
+        path to the directory in which the images to be shown are
+        
+    placeholder : streamlit container
+        a container that holds a single element, used to replace same element
+        
+    image_names : list
+        list of images to be shown in the monitor window.
+
+    Returns
+    -------
+    None.
+
+    """
+    #reads images
+    original_path = os.getcwd()
+    os.chdir(path)
+    images = [Image.open(x) for x in image_names]
+    #updates monitor web page
+    with placeholder.container():
+        fig_col1, fig_col2 = st.columns(2)
+        with fig_col1:
+            st.markdown("### Occupancy Monitor")
+            st.image(images[0])
+            
+        with fig_col2:
+            st.markdown("### Timebox and Scintillator Occupancy")
+            st.image(images[1])
     os.chdir( original_path)
 
 

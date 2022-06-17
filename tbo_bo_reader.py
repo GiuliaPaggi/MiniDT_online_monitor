@@ -5,13 +5,23 @@ import numpy as np
 import configparser
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
-
+import streamlit as st
 import PLOTS
 
 
+#plt.switch_backend('TkAgg')
+
+# ------ set up webpage ------
+st.set_page_config(
+    page_title="Monitor",
+    page_icon="✅",
+    layout="wide",
+)
+monitor = st.empty()
+
 # ----- import path from configuration file -----
 config = configparser.ConfigParser()
-config_file = '/home/gpaggi/dtupy/scripts/config.txt'
+config_file = 'config.txt'          #/home/gpaggi/dtupy/scripts/
 if os.path.exists(config_file): 
     config.read(config_file)     
 else : 
@@ -125,9 +135,6 @@ st_results = os.stat(data_path+filename)
 st_size = st_results[6]
 f.seek(st_size)
 
-# ----- start timer to refresh plot -----  
-t1 = time.time() 
-
 
 
 try:
@@ -220,7 +227,7 @@ try:
                         j +=1
 
                       
-
+            print(datetime.now().strftime("%Y/%m/%d - %H:%M:%S"), flush=True)
             PLOTS.save_1D(live_path, channel, entries, "Entries", run_name, "Channel", "Entries")
             PLOTS.save_2D(live_path, entries_2d, "Entries_2D", run_name, "Wire", "Layer")
             PLOTS.save_1D(live_path, channel, rate_entries, "Rate", run_name, "Channel", "Rate (Hz)")
@@ -249,7 +256,7 @@ try:
                     PLOTS.plot_1D(fig_timebox, ax_timebox[0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
                     PLOTS.plot_1D(fig_timebox, ax_timebox[1], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
             
-
+            PLOTS.update_monitor(live_path, monitor, [ 'occupancy_monitor.PNG', 'scintillator_monitor.PNG'])
                 
 except KeyboardInterrupt:
     print ('\nReading stopped.\n') 
