@@ -9,7 +9,7 @@ import PLOTS
 
 # ----- import path from configuration file -----
 config= configparser.ConfigParser()
-config.read('/home/gpaggi/dtupy/scripts/config.txt')
+config.read('config.txt')           #/home/gpaggi/dtupy/scripts/
 
 data_path = config.get('path', 'DataFolderPath')
 plot_path = config.get('path', 'PlotFolderPath')
@@ -28,9 +28,13 @@ else :
         run_name = "Run_" + str(n_run)
     else :
         n_run = -1
+        run_name = "FakeRun"
     
 # ----- to use the file generated with the simulator use r_number = -1 -----
 if n_run == -1: 
+    data_path = ''
+    plot_path = ''
+    live_path = ''
     filename = "FakeRun.txt"
 else : 
     filename =  run_name + ".txt"             
@@ -94,6 +98,14 @@ timebox_entries = [0] *200
 inst_timebox = []
 inst_timebox_entries = [0] *200
 timebox_ticks = [0, 25, 50, 75, 100, 125, 150, 175, 200]
+
+# ----- set up occupancy of scintillators events -----
+scint_entries = [0]*64
+scint_entries_2d = np.array([[0]*16]*4)
+scint_rate = [0]*64
+scint_rate_2d = np.array([[0]*16]*4, dtype = float)
+
+
 # ------ read file ------
 
 # find the size of the file and set pointer to the end
@@ -127,6 +139,9 @@ try:
             rate_entries = [0] *64 
             rate_2d [rate_2d>0] = 0
             inst_timebox_entries = [0] *200
+            scint_rate = [0] *64
+            scint_rate_2d[scint_rate_2d>0] = 0
+            
             scint = False
             #check line integrity
             if not line[0].startswith('_'):
@@ -164,6 +179,18 @@ try:
                     tr_time = tr_bx*25.0 + tr_tdc*25/30
                     j=1
                     while( line[ i ].split(' ')[2] == line[ i-j ].split(' ')[2]) :
+                        #fill scintillator channel occupancy
+                        hit_pin = int(line[ i-j ].split(' ')[3]  )
+                        hit_channel = pins.index(hit_pin)
+                        scint_entries[hit_channel] += 1
+                        scint_rate[hit_channel] += 1/delta_t
+                        
+                        #fill scintillator 2d occupancy
+                        hit_wire = wire[hit_channel]
+                        hit_layer = layer[hit_channel]
+                        scint_entries_2d[hit_layer-1][hit_wire -1] +=1
+                        scint_rate_2d[hit_layer-1][hit_wire -1] += 1/delta_t
+                        
                         #compute hits time
                         hit_bx =  int( line[ i-j ].split(' ')[4] )
                         hit_tdc = int( line[ i-j ].split(' ')[5].strip('\n') )
@@ -184,31 +211,47 @@ try:
 
             PLOTS.save_1D(live_path, channel, entries, "Entries", run_name, "Channel", "Entries")
             PLOTS.save_2D(live_path, entries_2d, "Entries_2D", run_name, "Wire", "Layer")
-            PLOTS.save_1D(live_path, channel, rate_entries, "Rate_(Hz)", run_name, "Channel", "Rate (Hz)")
+            PLOTS.save_1D(live_path, channel, rate_entries, "Rate", run_name, "Channel", "Rate (Hz)")
             PLOTS.save_2D(live_path, rate_2d, "Rate_2D", run_name, "Wire", "Layer")
+            images_list = ['Entries.PNG', 'Entries_2D.PNG', 'Rate.PNG', 'Rate_2D.PNG']
             
             if show_plt:
                 PLOTS.plot_1D(fig, ax[0][0], channel, entries, "Entries", n_run, "Channel", "Entries")
                 PLOTS.plot_2D(fig, ax[1][0], entries_2d, "Entries_2D", n_run, "Wire", "Layer")
-                PLOTS.plot_1D(fig, ax[0][1], channel, rate_entries, "Rate (Hz)", n_run, "Channel", "Rate (Hz)")
-                PLOTS.plot_2D(fig, ax[1][1], rate_2d, "Rate_2D", n_run, "Wire", "Layer")
-            
+                PLOTS.plot_1D(fig, ax[0][1], channel, rate_entries, "Rate", n_run, "Channel", "Rate (Hz)")
+                PLOTS.plot_2D(fig, ax[1][1], rate_2d, "Rate_2D", n_run, "Wire", "Layer")   
+                
             if scint:
                 PLOTS.save_1D(live_path, timebox_xaxis, timebox_entries, "Cumulative_Timebox", run_name, "TDC units", "Entries", xticks= timebox_ticks)
                 PLOTS.save_1D(live_path, timebox_xaxis, inst_timebox_entries, "Inst_Timebox",run_name, "TDC units", "Entries", xticks= timebox_ticks)
+                PLOTS.save_1D(live_path, channel, scint_entries, "Scintillator_event_entries", run_name, "Channel", "Entries")
+                PLOTS.save_2D(live_path, scint_entries_2d, "Scintillator_event_entries_2D", run_name, "Wire", "Layer")
+                PLOTS.save_1D(live_path, channel, scint_rate, "Scintillator_event_rate", run_name, "Channel", "Rate (Hz)")
+                PLOTS.save_2D(live_path, scint_rate_2d, "Scintillator_event_rate_2D", run_name, "Wire", "Layer")
+                images_list = ['Entries.PNG', 'Entries_2D.PNG', 'Cumulative_Timebox.PNG', "Scintillator_event_entries", "Scintillator_event_rate"
+                               'Rate.PNG', 'Rate_2D.PNG', 'Inst_Timebox.PNG', "Scintillator_event_rate", "Scintillator_event_rate_2D"]
+
+                
                 if show_plt :
                     PLOTS.plot_1D(fig_timebox, ax_timebox[0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
                     PLOTS.plot_1D(fig_timebox, ax_timebox[1], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
-
+            
+            PLOTS.make_monitor(live_path, images_list)
                 
 except KeyboardInterrupt:
-    print ('\nReading stopped.\n')
-    dir_path = plot_path+run_name+'/'
-    if not os.path.exists(dir_path):
-        os.mkdir(dir_path)
-        
+    print ('\nReading stopped.\n') 
+    if n_run == -1 :
+        dir_path = ''
+    else:
+        dir_path = plot_path+run_name+'/'
+        if not os.path.exists(dir_path):
+            os.mkdir(dir_path)
+            
     PLOTS.save_1D(dir_path, channel, entries, "Entries", run_name, "Channel", "Entries")
     PLOTS.save_2D(dir_path, entries_2d, "Entries_2D", run_name, "Wire", "Layer")
     PLOTS.save_1D(dir_path, timebox_xaxis, timebox_entries, "Cumulative_Timebox", run_name, "TDC units", "Entries", xticks= timebox_ticks)
-  
+    PLOTS.save_1D(dir_path, channel, scint_entries, "Scintillator_event_entries", run_name, "Channel", "Entries")
+    PLOTS.save_2D(dir_path, scint_entries_2d, "Scintillator_event_entries_2D", run_name, "Wire", "Layer")
+    
+    
     f.close()

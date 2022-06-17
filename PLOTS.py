@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from datetime import datetime
-
+import glob
+from PIL import Image
 
 def plot_1D(figure, ax, ch, entries, title, run_number,  xlabel, ylabel, xticks=[0, 8, 16, 24, 32, 40, 48, 56, 63]):
     """    
@@ -176,3 +177,48 @@ def save_2D(path, entries, title, namerun , xlabel, ylabel):
     ax_s.set_title(namerun + ' - '+ datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
     fig_s.savefig(path+title+'.PNG')
     plt.close()
+
+def make_monitor( path, image_names , chamber_number = ''):
+    """
+    
+
+    Parameters
+    ----------
+    path : string
+        path to the directory in which the produced image will be saved
+    image_names : list
+        list of all the images to put in the monitor 
+    chamber_number : strng, optional
+        chamber number, to distinguish the two chambers monitors. The default is '' since only one is working at the moment.
+
+    Returns
+    -------
+    None.
+
+    """
+    
+    images = [Image.open(x) for x in image_names]
+    widths, heights = zip(*(i.size for i in images))
+
+    total_width = int(sum(widths)*.5)
+    max_height = max(heights)*2
+
+    new_im = Image.new('RGB', (total_width, max_height))
+
+    cut = int(len(images)*.5)
+    first_row = images[:cut]
+    second_row = images[cut:]
+
+    x_offset = 0
+    for i in range(cut):
+      new_im.paste(first_row[i], (x_offset,0))
+      new_im.paste(second_row[i], (x_offset,heights[0]))
+      x_offset += widths[0]
+     
+    if not chamber_number == '' :
+        title = 'Chamber_'+chamber_number+'_monitor.PNG'
+    else:
+        title = 'monitor.PNG'
+    
+    new_im.save(path+title)
+    
