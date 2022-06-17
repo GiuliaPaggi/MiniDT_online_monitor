@@ -5,6 +5,7 @@ numpy
 os
 PIL
 random
+streamlit
 sys
 time
 tkinter
