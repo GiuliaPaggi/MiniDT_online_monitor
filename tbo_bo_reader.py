@@ -3,13 +3,23 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import numpy as np
 import configparser
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
 
 import PLOTS
 
 
 # ----- import path from configuration file -----
-config= configparser.ConfigParser()
-config.read('config.txt')           #/home/gpaggi/dtupy/scripts/
+config = configparser.ConfigParser()
+config_file = '/home/gpaggi/dtupy/scripts/config.txt'
+if os.path.exists(config_file): 
+    config.read(config_file)     
+else : 
+    #print( 'Select the configuration file', flush=True)
+    Tk().withdraw()
+    config_file = askopenfilename()
+    config.read(config_file)
+
 
 data_path = config.get('path', 'DataFolderPath')
 plot_path = config.get('path', 'PlotFolderPath')
