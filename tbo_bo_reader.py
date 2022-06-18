@@ -14,7 +14,6 @@ import PLOTS
 # ------ set up webpage ------
 st.set_page_config(
     page_title="Monitor",
-    page_icon="✅",
     layout="wide",
 )
 monitor = st.empty()
@@ -39,7 +38,9 @@ show_plt = config.getboolean('option', 'ShowPlots')
 # ----- run number can be passed as an argument from the terminal command line -----
 
 if len(sys.argv)>1:
-    n_run = sys.argv[1] 
+    print(sys.argv, flush=True)
+    n_run = int(sys.argv[1])
+    run_name = "Run_" + str(n_run)
 # if run number is not given, read runs log files to find the current one 
 else :
     if os.path.exists(logfile_path):
@@ -67,8 +68,11 @@ if os.path.exists(data_path+filename):
     print(datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+ ' Reading ' + filename )
 
 else:
-    print("Error, output data file does not exists! Exiting...")
+    print("Error, output data file does not exists! Press CTRL-C to exit")
+    st.write("Error, output data file does not exists! Exiting...")
+    st.stop()
     sys.exit()
+
 
 # ------ assign channel to pin -------
 obdt_connectors = {
@@ -259,6 +263,8 @@ try:
                 
 except KeyboardInterrupt:
     print ('\nReading stopped.\n') 
+    st.write('Reading stopped.')
+    st.stop()
     if n_run == -1 :
         dir_path = run_name+'/'
         if not os.path.exists(dir_path):
@@ -276,3 +282,4 @@ except KeyboardInterrupt:
     
     
     f.close()
+    
