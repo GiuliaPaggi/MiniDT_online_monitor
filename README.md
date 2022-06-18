@@ -2,9 +2,15 @@
 MiniDTs online monitor project. Show occupancy plots, rate, and timebox in real-time.
 
 ## Project Status
-The project is in progress. At the moment it's possible to visualize the channels' occupancy, the 2D chamber occupancy, the rate of the last 30s both per channel and in the 2D configuration, the timebox of the whole run, and the last 30s of data taking. 
+The project is in progress. At the moment, for one chamber it's possible to visualize:
+- the channels' and 2D chamber cumulative occupancy, 
+- the rate of the last 30s both per channel and in the 2D configuration,
+- the timebox of the whole run, and the last 30s of data taking,
+- the channels' and 2D chamber cumulative and the last 30s occupancy relative to the events linked with a scintillator signal.
 The produced plots are saved in .PNG format in a specific folder that can be specified using the configuration file, and refreshed every 30s. 
+The plots are shown live in a local web page while the monitor is active.
 When the user closes the monitor program, a copy of the cumulative plots is saved in a new folder with the run name at a path chosen by the user via the configuration file.
+
 
 ## Table of Contents
 * [General Info](#general-information)
@@ -76,6 +82,9 @@ The project is divided in the following way:
 - 2D: the plot shows the cumulative hits on a 2D map, each rectangle represents one of the chamber cells. The occupancy plot helps in identifying channels with high noise rates or, on the other side, channels with a reduced rate.
 <img src="https://github.com/GiuliaPaggi/MiniDT_online_monitor/blob/main/plot_examples/Entries_2D.PNG" width="600">
 
+- relative to scintillator events, both per channel and 2D: to identify and monitor which channels are covered by the scintillator area
+
+
 
 #### Instantaneous rate
 - per channel: the plot shows the rate in the last 30s of data taking. It can help identify transient external sources of noise.
@@ -84,6 +93,8 @@ The project is divided in the following way:
 -2D: the plot shows the rate on a 2D map, each rectangle represents one of the chamber cells. It can help identify channels with high transient noise.
 
 <img src="https://github.com/GiuliaPaggi/MiniDT_online_monitor/blob/main/plot_examples/Rate_2D.PNG" width="600">
+
+- relative to scintillator events, both per channel and 2D: to identify and monitor which channels are covered by the scintillator area
 
 #### Cumulative timebox
 The plot shows the time difference between the scintillator signal and the chamber response. It depends on the drift time of the electrons in the cells and it can help to identify problems in the gas distribution inside the chamber.
@@ -106,13 +117,16 @@ In particular, the monitor project is developed in a python 3.9 environment, usi
 - matplotlib 
 - numpy 
 - os
+- streamlit
 - sys
 - time
+- tkinter
 
 Additionally, for the readout simulator, the following modules are used:
 - datetime
 - random 
 - sys
+- streamlit
 - time
 
 
