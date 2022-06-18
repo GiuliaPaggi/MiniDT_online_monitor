@@ -45,21 +45,28 @@ The format is a string of 5 numbers that, in this order, represent:
 A simulator of the MiniDTs readout program has been developed. The code generates random numbers for the pin, orbit, BX, and TDC measurement values. 
 These are then formatted in the same shape as the actual readout program and written into a text file in the working directory.  
 When the simulated pin corresponds to the scintillator pin, the program generates an event of four vertical hits in the chamber, starting from a random cell of the top layer. 
-This feature is needed to build a timebox, i.d. the plot of the distribution of the time elapsing between the scintillator and the layers signals. 
-Based on the analysis of actual data, the timebox has a width of tilde 400ns. For this reason, the events are randomly simulated in a 400ns interval before the scintillator signal. 
+This feature is needed to simulate a timebox, i.d. the plot of the distribution of the time elapsing between the scintillator and the layers signals. 
+Based on the analysis of actual data, the timebox has a width of around 400ns. For this reason, the events are randomly simulated in a 400ns interval before the scintillator signal. 
 
-The path of the file is fixed but the run number can be passed as a parameter when executing the program. 
-For example, when acquiring the run 32 file, the monitor can be called using  
-> user@host $  python tbo_bo_reader.py 32
-
-
-The simulated file run number is identified by -1 and has to be passed as a parameter.
-If no run number is passed as a parameter, the code opens the previous runs' log file and computes the current run number. If there is no such file, the program assumes the simulated file is being used. 
 
 Before running the monitor program, the user needs to specify in the configuration file the paths to the data and runs' log files, where the refreshing plots should be saved and where the cumulative ones should be saved at the conclusion of the monitoring session.   
-Through the configuration file, the user can decide if the plots are to be shown during the program execution or only saved in the chosen folders.
+Through the configuration file, the user can also decide if the plots are to be shown as a matplotlib figure during the program execution or only saved in the chosen folders.
+If the program does not find the configuration file in the working folder, the user is asked to specify the file through a graphical interface.  
+
+The run number can be passed as a parameter when executing the program. 
+Since for the monitor display streamlit is used, when acquiring the run 32 file, the monitor can be called using  
+> user@host $  streamlit run tbo_bo_reader.py 32
+
+The simulated file run number is identified by -1, in this case the monitor should be run using the following comand
+
+> user@host $  streamlit run tbo_bo_reader.py -- -1
+
+in order to stop streamlit to parse further than --. 
+If no run number is passed as a parameter, the code opens the previous runs' log file and computes the current run number. If there is no such file, the program assumes the simulated file is being used. 
+
 When the monitor starts, it moves to the end of the text file produced by the MiniDTs acquisition program and reads the newly written lines every 30 seconds.
 With these data, it builds the rate and instantaneous timebox plots that are refreshed at each reading, and it stores them in the cumulative occupancy and timebox plots.
+This plots are shown in a local web page refreshing each time new data is plotted.
 When the user closes the monitor program, a copy of the cumulative plots is saved in a new folder with the run name at a path chosen by the user via the configuration file.
 
 
