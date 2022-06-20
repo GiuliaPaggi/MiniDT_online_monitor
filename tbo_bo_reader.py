@@ -67,7 +67,7 @@ if os.path.exists(data_path+filename):
     print(datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+ ' Reading ' + filename )
 
 else:
-    print("Error, output data file does not exists! Press CTRL-C to exit")
+    print("Error, output data file "+filename+" does not exists! Press CTRL-C to exit")
     st.write("Error, output data file does not exists! Exiting...")
     st.stop()
     sys.exit()
