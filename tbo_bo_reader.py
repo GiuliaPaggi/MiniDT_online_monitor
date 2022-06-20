@@ -20,7 +20,7 @@ monitor = st.empty()
 
 # ----- import path from configuration file -----
 config = configparser.ConfigParser()
-config_file = 'config.txt'          #/home/gpaggi/dtupy/scripts/
+config_file = '/home/gpaggi/dtupy/scripts/config.txt'          
 if os.path.exists(config_file): 
     config.read(config_file)     
 else : 
@@ -38,7 +38,6 @@ show_plt = config.getboolean('option', 'ShowPlots')
 # ----- run number can be passed as an argument from the terminal command line -----
 
 if len(sys.argv)>1:
-    print(sys.argv, flush=True)
     n_run = int(sys.argv[1])
     run_name = "Run_" + str(n_run)
 # if run number is not given, read runs log files to find the current one 
@@ -204,29 +203,30 @@ try:
                     while( line[ i ].split(' ')[2] == line[ i-j ].split(' ')[2]) :
                         #fill scintillator channel occupancy
                         hit_pin = int(line[ i-j ].split(' ')[3]  )
-                        hit_channel = pins.index(hit_pin)
-                        scint_entries[hit_channel] += 1
-                        scint_rate[hit_channel] += 1/delta_t
-                        
-                        #fill scintillator 2d occupancy
-                        hit_wire = wire[hit_channel]
-                        hit_layer = layer[hit_channel]
-                        scint_entries_2d[hit_layer-1][hit_wire -1] +=1
-                        scint_rate_2d[hit_layer-1][hit_wire -1] += 1/delta_t
-                        
-                        #compute hits time
-                        hit_bx =  int( line[ i-j ].split(' ')[4] )
-                        hit_tdc = int( line[ i-j ].split(' ')[5].strip('\n') )
-                        hit_time = hit_bx*25.0 + hit_tdc*25/30
-                        #compute time diff and fill a histo with bin width = tdc resolution for cumulative timebox
-                        time_diff= hit_time - tr_time + 1000
-                        index=round(time_diff * 30/25 *.125) 
-                        try: 
-                            timebox_entries[index] +=1
-                            inst_timebox_entries[index] +=1
-                        except IndexError: 
-                            print(time_diff, line[i], line[i-j] )
-                            #sys.exit()
+                        if hit_pin != 230:
+                            hit_channel = pins.index(hit_pin)
+                            scint_entries[hit_channel] += 1
+                            scint_rate[hit_channel] += 1/delta_t
+                            
+                            #fill scintillator 2d occupancy
+                            hit_wire = wire[hit_channel]
+                            hit_layer = layer[hit_channel]
+                            scint_entries_2d[hit_layer-1][hit_wire -1] +=1
+                            scint_rate_2d[hit_layer-1][hit_wire -1] += 1/delta_t
+                            
+                            #compute hits time
+                            hit_bx =  int( line[ i-j ].split(' ')[4] )
+                            hit_tdc = int( line[ i-j ].split(' ')[5].strip('\n') )
+                            hit_time = hit_bx*25.0 + hit_tdc*25/30
+                            #compute time diff and fill a histo with bin width = tdc resolution for cumulative timebox
+                            time_diff= hit_time - tr_time + 1000
+                            index=round(time_diff * 30/25 *.125) 
+                            try: 
+                                timebox_entries[index] +=1
+                                inst_timebox_entries[index] +=1
+                            except IndexError: 
+                                print(time_diff, line[i], line[i-j] )
+                                #sys.exit()
                         
                         j +=1
 
@@ -254,12 +254,15 @@ try:
                 scint_list = ['Cumulative_Timebox.PNG', "Scintillator_event_entries.PNG", "Scintillator_event_rate.PNG",
                                 'Inst_Timebox.PNG', "Scintillator_event_rate.PNG", "Scintillator_event_rate_2D.PNG"]
                 PLOTS.make_monitor(live_path, scint_list, 'scintillator')
+                PLOTS.update_monitor(live_path, monitor, [ 'occupancy_monitor.PNG', 'scintillator_monitor.PNG'])
+            else:
+                PLOTS.update_monitor(live_path, monitor, [ 'occupancy_monitor.PNG'])
                 
                 if show_plt :
                     PLOTS.plot_1D(fig_timebox, ax_timebox[0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
                     PLOTS.plot_1D(fig_timebox, ax_timebox[1], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
             
-            PLOTS.update_monitor(live_path, monitor, [ 'occupancy_monitor.PNG', 'scintillator_monitor.PNG'])
+            
                 
 except KeyboardInterrupt:
     print ('\nReading stopped.\n') 
