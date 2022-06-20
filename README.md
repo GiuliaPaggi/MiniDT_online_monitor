@@ -28,6 +28,7 @@ The MiniDTs are operated with the same high voltage and gas mixture condition us
 The signals on the front end are read using two boards: an On-detector Board for Drift Tube (OBDT) version 1 for the time to digital conversion, and a Xilinx Virtex-7 FPGA VC707 that provides the simulated LHC clock and can be used to implement the slow control.  
 The telescope will be completed with three scintillator planes, instrumented with photomultipliers to read out the signals.
 These will be located at the top, at the bottom, and in between the two MiniDTs to provide an independent signal, using the coincidence of two or more planes. This signal will be used to identify muons crossing the telescope in the offline analysis of the data from the miniDTs, which have a trigger-less data acquisition system. 
+
 This project aims to develop an online monitor that can allow for a check of the data acquisition process, controlling the data quality and the detector status. 
 The focus is on the occupancy of each channel and the time difference between the scintillator and the MiniDTs front-end signals. The first allows identifying during the data taking dead or particularly noisy channels.
 The latter is related to the linearity of the MiniDT's space-time response, which depends on the electrons' drift velocity in the chamber.
@@ -49,7 +50,7 @@ This feature is needed to simulate a timebox, i.d. the plot of the distribution 
 Based on the analysis of actual data, the timebox has a width of around 400ns. For this reason, the events are randomly simulated in a 400ns interval before the scintillator signal. 
 
 
-Before running the monitor program, the user needs to specify in the configuration file the paths to the data and runs' log files, where the refreshing plots should be saved and where the cumulative ones should be saved at the conclusion of the monitoring session.   
+Before running the monitor program, the user needs to specify in the configuration file the paths to the data and runs' log files, where the plots should be saved and refreshed every 30s, and where the cumulative ones should be saved at the conclusion of the monitoring session.   
 Through the configuration file, the user can also decide if the plots are to be shown as a matplotlib figure during the program execution or only saved in the chosen folders.
 If the program does not find the configuration file in the working folder, the user is asked to specify the file through a graphical interface.  
 
@@ -75,7 +76,7 @@ When the user closes the monitor program, a copy of the cumulative plots is save
 
 ## Structure of the project
 The project is divided in the following way:
-- **tbo_bo_reader.py**:  the file that reads the run data file during the data taking and manages the online monitor. Every 30 seconds, it reads all lines that were written on the file in the elapsed time, and displays, if the user selected the option via configuration file, and saves the updated plots. When it is closed, it saves all the cumulative plots in a folder with the run name. The paths of the folders (the data file, past runs log file, and where the plots should be saved) are set via the configuration file ;
+- **tbo_bo_reader.py**:  the file that reads the run data file during the data taking and manages the online monitor. Every 30 seconds, it reads all lines that were written on the file in the elapsed time, and displays and saves the updated plots. When it is closed, it saves all the cumulative plots in a folder with the run name. The paths of the folders (the data file, past runs log file, and where the plots should be saved) are set via the configuration file ;
 - **PLOTS.py**: file in which the plotting functions for the monitor are defined;
 - **tbo_bo_writer_simulator.py**: the simulator of one MiniDT chamber readout, writes a line in a text file every 0.1s with randomly generated hits;
 - **SORT.py**: file in which the sorting function of the simulator is defined;
