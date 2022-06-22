@@ -36,7 +36,7 @@ It can help identify inhomogeneities in the gas distribution or problems in the 
 
 ## Usage
 This project is meant to be used on the text file written by the MiniDTs acquisition program. Each line in this file is one event recorded in the detector's channels or on the scintillator planes.
-The format is a string of 5 numbers that, in this order, represent:
+As can be seen in the data example file, the format is a string of 5 numbers that, in this order, represent:
 - "DAQ_time", the time elapsed since the beginning of the data taking in s;
 - "orbit number", the LHC orbit number of the event simulated by the Xilinx Virtex-7 FPGA VC707 clock, it resets at 4095;
 - "OBDT pin", the OBDT channel where the signal was recorded;
