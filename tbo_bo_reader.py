@@ -177,6 +177,7 @@ try:
                 line.pop(len(line)-1)
             
             delta_t = float( line[len(line)-1].split(' ')[1] )- float(line[0].split(' ')[1] )
+            rate =round (len(line)/delta_t, 2)
             
             for i in range(0, len(line)):
                 try: 
@@ -266,9 +267,9 @@ try:
                 scint_list = ['Cumulative_Timebox.PNG', "Scintillator_event_entries.PNG", "Scintillator_event_rate.PNG",
                                 'Inst_Timebox.PNG', "Scintillator_event_rate.PNG", "Scintillator_event_rate_2D.PNG"]
                 PLOTS.make_monitor(dir_path, scint_list, 'scintillator')
-                PLOTS.update_monitor(dir_path, monitor, [ 'occupancy_monitor.PNG', 'scintillator_monitor.PNG'])
+                PLOTS.update_monitor(dir_path, monitor, [ 'occupancy_monitor.PNG', 'scintillator_monitor.PNG'], str(rate))
             else:
-                PLOTS.update_monitor(dir_path, monitor, [ 'occupancy_monitor.PNG'])
+                PLOTS.update_monitor(dir_path, monitor, [ 'occupancy_monitor.PNG'], str(rate))
                 
                 # if show_plt :
                 #     PLOTS.plot_1D(fig_timebox, ax_timebox[0][0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)

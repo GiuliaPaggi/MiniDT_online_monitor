@@ -245,10 +245,10 @@ def make_monitor( path, image_names , monitor_name , chamber_number = ''):
         title = monitor_name+'_monitor.PNG'
     
     new_im.save(title)
-    os.chdir( original_path)
+    os.chdir(original_path)
     
     
-def update_monitor(path, placeholder, image_names):
+def update_monitor(path, placeholder, image_names, rate_):
     """
     
 
@@ -262,6 +262,10 @@ def update_monitor(path, placeholder, image_names):
         
     image_names : list
         list of images to be shown in the monitor window.
+    
+    rate_ : string
+        rate in the last 30s of data taking
+
 
     Returns
     -------
@@ -271,9 +275,11 @@ def update_monitor(path, placeholder, image_names):
     #reads images
     original_path = os.getcwd()
     os.chdir(path)
+
     images = [Image.open(x) for x in image_names]
     #updates monitor web page
     with placeholder.container():
+        st.markdown("### Rate: "+rate_+" Hz")
         fig_col1, fig_col2 = st.columns([2, 3])
         with fig_col1:
             st.markdown("### Occupancy Monitor")
