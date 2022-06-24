@@ -32,7 +32,6 @@ else :
 
 data_path = config.get('path', 'DataFolderPath')
 plot_path = config.get('path', 'PlotFolderPath')
-live_path = config.get('path', 'LiveFolderPath')
 logfile_path = config.get('file', 'LogFile')
 show_plt = config.getboolean('option', 'ShowPlots')
 # ----- run number can be passed as an argument from the terminal command line -----
@@ -52,14 +51,19 @@ else :
     
 # ----- to use the file generated with the simulator use r_number = -1 -----
 if n_run == -1: 
+    filename = "FakeRun.txt"
     data_path = ''
     plot_path = ''
-    live_path = run_name+'_live/'
-    if not os.path.exists(live_path):
-        os.mkdir(live_path)
-    filename = "FakeRun.txt"
+    dir_path = run_name+'/'
+    if not os.path.exists(dir_path):
+        os.mkdir(dir_path)
+
 else : 
-    filename =  run_name + ".txt"             
+    filename =  run_name + ".txt"  
+    dir_path = plot_path+run_name+'/' 
+    if not os.path.exists(dir_path):
+        os.mkdir(dir_path)          
+
 
 # ----- check if the file exists, close the program if it does not -----
 if os.path.exists(data_path+filename):
@@ -231,12 +235,12 @@ try:
                         j +=1
 
 
-            PLOTS.save_1D(live_path, channel, entries, "Entries", run_name, "Channel", "Entries")
-            PLOTS.save_2D(live_path, entries_2d, "Entries_2D", run_name, "Wire", "Layer")
-            PLOTS.save_1D(live_path, channel, rate_entries, "Rate", run_name, "Channel", "Rate (Hz)")
-            PLOTS.save_2D(live_path, rate_2d, "Rate_2D", run_name, "Wire", "Layer")
+            PLOTS.save_1D(dir_path, channel, entries, "Entries", run_name, "Channel", "Entries")
+            PLOTS.save_2D(dir_path, entries_2d, "Entries_2D", run_name, "Wire", "Layer")
+            PLOTS.save_1D(dir_path, channel, rate_entries, "Rate", run_name, "Channel", "Rate (Hz)")
+            PLOTS.save_2D(dir_path, rate_2d, "Rate_2D", run_name, "Wire", "Layer")
             images_list = ['Entries.PNG', 'Entries_2D.PNG', 'Rate.PNG', 'Rate_2D.PNG']
-            PLOTS.make_monitor(live_path, images_list, 'occupancy')
+            PLOTS.make_monitor(dir_path, images_list, 'occupancy')
             
             if show_plt:
                 PLOTS.plot_1D(fig, ax[0][0], channel, entries, "Entries", n_run, "Channel", "Entries")
@@ -245,18 +249,18 @@ try:
                 PLOTS.plot_2D(fig, ax[1][1], rate_2d, "Rate_2D", n_run, "Wire", "Layer")   
                 
             if scint:
-                PLOTS.save_1D(live_path, timebox_xaxis, timebox_entries, "Cumulative_Timebox", run_name, "TDC units", "Entries", xticks= timebox_ticks)
-                PLOTS.save_1D(live_path, timebox_xaxis, inst_timebox_entries, "Inst_Timebox",run_name, "TDC units", "Entries", xticks= timebox_ticks)
-                PLOTS.save_1D(live_path, channel, scint_entries, "Scintillator_event_entries", run_name, "Channel", "Entries")
-                PLOTS.save_2D(live_path, scint_entries_2d, "Scintillator_event_entries_2D", run_name, "Wire", "Layer")
-                PLOTS.save_1D(live_path, channel, scint_rate, "Scintillator_event_rate", run_name, "Channel", "Rate (Hz)")
-                PLOTS.save_2D(live_path, scint_rate_2d, "Scintillator_event_rate_2D", run_name, "Wire", "Layer")
+                PLOTS.save_1D(dir_path, timebox_xaxis, timebox_entries, "Cumulative_Timebox", run_name, "TDC units", "Entries", xticks= timebox_ticks)
+                PLOTS.save_1D(dir_path, timebox_xaxis, inst_timebox_entries, "Inst_Timebox",run_name, "TDC units", "Entries", xticks= timebox_ticks)
+                PLOTS.save_1D(dir_path, channel, scint_entries, "Scintillator_event_entries", run_name, "Channel", "Entries")
+                PLOTS.save_2D(dir_path, scint_entries_2d, "Scintillator_event_entries_2D", run_name, "Wire", "Layer")
+                PLOTS.save_1D(dir_path, channel, scint_rate, "Scintillator_event_rate", run_name, "Channel", "Rate (Hz)")
+                PLOTS.save_2D(dir_path, scint_rate_2d, "Scintillator_event_rate_2D", run_name, "Wire", "Layer")
                 scint_list = ['Cumulative_Timebox.PNG', "Scintillator_event_entries.PNG", "Scintillator_event_rate.PNG",
                                 'Inst_Timebox.PNG', "Scintillator_event_rate.PNG", "Scintillator_event_rate_2D.PNG"]
-                PLOTS.make_monitor(live_path, scint_list, 'scintillator')
-                PLOTS.update_monitor(live_path, monitor, [ 'occupancy_monitor.PNG', 'scintillator_monitor.PNG'])
+                PLOTS.make_monitor(dir_path, scint_list, 'scintillator')
+                PLOTS.update_monitor(dir_path, monitor, [ 'occupancy_monitor.PNG', 'scintillator_monitor.PNG'])
             else:
-                PLOTS.update_monitor(live_path, monitor, [ 'occupancy_monitor.PNG'])
+                PLOTS.update_monitor(dir_path, monitor, [ 'occupancy_monitor.PNG'])
                 
                 if show_plt :
                     PLOTS.plot_1D(fig_timebox, ax_timebox[0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)

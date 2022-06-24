@@ -1,14 +1,12 @@
 #Specify the paths for :
 # - folder of the file in which the data are being written
-# - folder in which the cumulative plots will be saved when closing the online monitor
-# - folder in which the plots will be overwritten every 30s  
+# - folder in which the plots will be saved every 30s  
 #Specify previous runs log file
 #Select if plots are to be shown
 
 [path]
 DataFolderPath = /home/gpaggi/dtupy/scripts/MiniDT_Runs/
 PlotFolderPath = /home/gpaggi/DQM_www/
-LiveFolderPath = /home/gpaggi/DQM_www/Live/
 [file]
 LogFile = /home/gpaggi/dtupy/scripts/MiniDT_Runs/Runs_Configurations.txt
 [option]
