@@ -7,8 +7,9 @@ The project is in progress. At the moment, for one chamber it's possible to visu
 - the rate of the last 30s both per channel and in the 2D configuration,
 - the timebox of the whole run, and the last 30s of data taking,
 - the channels' and 2D chamber cumulative and the last 30s occupancy relative to the events linked with a scintillator signal.
+
 The produced plots are saved in .PNG format in a specific folder that can be specified using the configuration file, and refreshed every 30s. 
-The plots are shown live in a local web page while the monitor is active.
+The plots are shown live on a local web page while the monitor is active.
 When the user closes the monitor program, a copy of the cumulative plots is saved in a new folder with the run name at a path chosen by the user via the configuration file.
 
 
@@ -50,7 +51,7 @@ This feature is needed to simulate a timebox, i.d. the plot of the distribution 
 Based on the analysis of actual data, the timebox has a width of around 400ns. For this reason, the events are randomly simulated in a 400ns interval before the scintillator signal. 
 
 
-Before running the monitor program, the user needs to specify in the configuration file the paths to the data and runs' log files, where the plots should be saved and refreshed every 30s, and where the cumulative ones should be saved at the conclusion of the monitoring session.   
+Before running the monitor program, the user needs to specify in the configuration file the paths to the data and runs' log files, where the plots should be saved and refreshed every 30s. 
 Through the configuration file, the user can also decide if the plots are to be shown as a matplotlib figure during the program execution or only saved in the chosen folders.
 If the program does not find the configuration file in the working folder, the user is asked to specify the file through a graphical interface.  
 
@@ -58,30 +59,34 @@ The run number can be passed as a parameter when executing the program.
 Since for the monitor display streamlit is used, when acquiring the run 32 file, the monitor can be called using  
 > user@host $  streamlit run tbo_bo_reader.py 32
 
-The simulated file run number is identified by -1, in this case the monitor should be run using the following comand
+If the user only wants to save the plots or prefers to display them using matplotlib, it can run the monitor as
+> user@host $  python tbo_bo_reader.py 32
+
+The simulated file run number is identified by -1, in this case, when running with streamlit the monitor should be run using the following command
 
 > user@host $  streamlit run tbo_bo_reader.py -- -1
 
 in order to stop streamlit to parse further than --. 
+
 If no run number is passed as a parameter, the code opens the previous runs' log file and computes the current run number. If there is no such file, the program assumes the simulated file is being used. 
 
 When the monitor starts, it moves to the end of the text file produced by the MiniDTs acquisition program and reads the newly written lines every 30 seconds.
 With these data, it builds the rate and instantaneous timebox plots that are refreshed at each reading, and it stores them in the cumulative occupancy and timebox plots.
-This plots are shown in a local web page refreshing each time new data is plotted.
+These plots are saved in a folder with the run name, in the folder specified by the user through the configuration file.
+Moreover, the produced plots are shown on a local web page, refreshing each time new data is plotted.
 <img src="https://github.com/GiuliaPaggi/MiniDT_online_monitor/blob/main/plot_examples/monitorpage.png" width="1000">
 
-When the user closes the monitor program, a copy of the cumulative plots is saved in a new folder with the run name at a path chosen by the user via the configuration file.
 
 
 
 ## Structure of the project
 The project is divided in the following way:
-- **tbo_bo_reader.py**:  the file that reads the run data file during the data taking and manages the online monitor. Every 30 seconds, it reads all lines that were written on the file in the elapsed time, and displays and saves the updated plots. When it is closed, it saves all the cumulative plots in a folder with the run name. The paths of the folders (the data file, past runs log file, and where the plots should be saved) are set via the configuration file ;
+- **tbo_bo_reader.py**:  the file that reads the run data file during the data taking and manages the online monitor. Every 30 seconds, it reads all lines that were written on the file in the elapsed time, and displays and saves the updated plots. The paths of the folders (the data file, past runs log file, and where the plots should be saved) are set via the configuration file ;
 - **PLOTS.py**: file in which the plotting functions for the monitor are defined;
 - **tbo_bo_writer_simulator.py**: the simulator of one MiniDT chamber readout, writes a line in a text file every 0.1s with randomly generated hits;
 - **SORT.py**: file in which the sorting function of the simulator is defined;
 - **test_writer.py**: test file for the simulator function.
-- **config.txt**: the text file containing the folder paths necessary for finding the data file and correctly saving the plots. Through the configuration file, the user can choose whether to display the plots or to just save them.
+- **config.txt**: the text file containing the folder paths necessary for finding the data file and correctly saving the plots. The user can choose whether to display the plots using matplotlib, or just save them through the configuration file and visualize them on the online web page.
 
 ## Output
 #### Cumulative occupancy 
