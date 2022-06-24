@@ -107,7 +107,7 @@ if show_plt:
     # ----- set interactive mode so that pyplot.show() displays the figures and immediately returns ----
     plt.ion() 
     fig, ax = plt.subplots(2, 2, figsize = (15, 10))
-    fig_timebox, ax_timebox = plt.subplots(2, 1, figsize = (15, 10))
+    fig_timebox, ax_timebox = plt.subplots(2, 3, figsize = (15, 10))
 
 # ----- set up 1d channel occupancy -----
 entries = [0] *64 
@@ -233,8 +233,21 @@ try:
                                 #sys.exit()
                         
                         j +=1
-
-
+            # display plots with matplotlib
+            if show_plt:
+                PLOTS.plot_1D(fig, ax[0][0], channel, entries, "Entries", n_run, "Channel", "Entries")
+                PLOTS.plot_2D(fig, ax[1][0], entries_2d, "Entries_2D", n_run, "Wire", "Layer")
+                PLOTS.plot_1D(fig, ax[0][1], channel, rate_entries, "Rate", n_run, "Channel", "Rate (Hz)")
+                PLOTS.plot_2D(fig, ax[1][1], rate_2d, "Rate_2D", n_run, "Wire", "Layer")   
+                if scint:
+                    PLOTS.plot_1D(fig_timebox, ax_timebox[0][0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
+                    PLOTS.plot_1D(fig_timebox, ax_timebox[1][0], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
+                    PLOTS.plot_1D(fig_timebox, ax_timebox[0][1], channel, scint_entries, "Scintillator_event_entries", run_name, "Channel", "Entries")
+                    PLOTS.plot_2D(fig_timebox, ax_timebox[0][2], scint_entries_2d, "Scintillator_event_entries_2D", run_name, "Wire", "Layer")
+                    PLOTS.plot_1D(fig_timebox, ax_timebox[1][1], channel, scint_rate, "Scintillator_event_rate", run_name, "Channel", "Rate")
+                    PLOTS.plot_2D(fig_timebox, ax_timebox[1][2], scint_rate_2d, "Scintillator_event_rate_2D", run_name, "Wire", "Layer")
+ 
+            # save plots in folder and update monitor web page 
             PLOTS.save_1D(dir_path, channel, entries, "Entries", run_name, "Channel", "Entries")
             PLOTS.save_2D(dir_path, entries_2d, "Entries_2D", run_name, "Wire", "Layer")
             PLOTS.save_1D(dir_path, channel, rate_entries, "Rate", run_name, "Channel", "Rate (Hz)")
@@ -242,18 +255,13 @@ try:
             images_list = ['Entries.PNG', 'Entries_2D.PNG', 'Rate.PNG', 'Rate_2D.PNG']
             PLOTS.make_monitor(dir_path, images_list, 'occupancy')
             
-            if show_plt:
-                PLOTS.plot_1D(fig, ax[0][0], channel, entries, "Entries", n_run, "Channel", "Entries")
-                PLOTS.plot_2D(fig, ax[1][0], entries_2d, "Entries_2D", n_run, "Wire", "Layer")
-                PLOTS.plot_1D(fig, ax[0][1], channel, rate_entries, "Rate", n_run, "Channel", "Rate (Hz)")
-                PLOTS.plot_2D(fig, ax[1][1], rate_2d, "Rate_2D", n_run, "Wire", "Layer")   
-                
+        
             if scint:
                 PLOTS.save_1D(dir_path, timebox_xaxis, timebox_entries, "Cumulative_Timebox", run_name, "TDC units", "Entries", xticks= timebox_ticks)
                 PLOTS.save_1D(dir_path, timebox_xaxis, inst_timebox_entries, "Inst_Timebox",run_name, "TDC units", "Entries", xticks= timebox_ticks)
                 PLOTS.save_1D(dir_path, channel, scint_entries, "Scintillator_event_entries", run_name, "Channel", "Entries")
                 PLOTS.save_2D(dir_path, scint_entries_2d, "Scintillator_event_entries_2D", run_name, "Wire", "Layer")
-                PLOTS.save_1D(dir_path, channel, scint_rate, "Scintillator_event_rate", run_name, "Channel", "Rate (Hz)")
+                PLOTS.save_1D(dir_path, channel, scint_rate, "Scintillator_event_rate", run_name, "Channel", "Rate")
                 PLOTS.save_2D(dir_path, scint_rate_2d, "Scintillator_event_rate_2D", run_name, "Wire", "Layer")
                 scint_list = ['Cumulative_Timebox.PNG', "Scintillator_event_entries.PNG", "Scintillator_event_rate.PNG",
                                 'Inst_Timebox.PNG', "Scintillator_event_rate.PNG", "Scintillator_event_rate_2D.PNG"]
@@ -262,31 +270,17 @@ try:
             else:
                 PLOTS.update_monitor(dir_path, monitor, [ 'occupancy_monitor.PNG'])
                 
-                if show_plt :
-                    PLOTS.plot_1D(fig_timebox, ax_timebox[0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
-                    PLOTS.plot_1D(fig_timebox, ax_timebox[1], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
-            
+                # if show_plt :
+                #     PLOTS.plot_1D(fig_timebox, ax_timebox[0][0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
+                #     PLOTS.plot_1D(fig_timebox, ax_timebox[1][0], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
+                #     PLOTS.plot_1D(fig_timebox, ax_timebox[0][1], channel, scint_entries, "Scintillator_event_entries", run_name, "Channel", "Entries")
+                #     PLOTS.plot_2D(fig_timebox, ax_timebox[0][2], scint_entries_2d, "Scintillator_event_entries_2D", run_name, "Wire", "Layer")
+                #     PLOTS.plot_1D(fig_timebox, ax_timebox[1][1], channel, scint_rate, "Scintillator_event_rate", run_name, "Channel", "Rate")
+                #     PLOTS.plot_2D(fig_timebox, ax_timebox[1][2], scint_rate_2d, "Scintillator_event_rate_2D", run_name, "Wire", "Layer")
             
                 
 except KeyboardInterrupt:
     print ('\nReading stopped.\n') 
-    st.write('Reading stopped.')
-    st.stop()
-    if n_run == -1 :
-        dir_path = run_name+'/'
-        if not os.path.exists(dir_path):
-            os.mkdir(dir_path)
-    else:
-        dir_path = plot_path+run_name+'/'
-        if not os.path.exists(dir_path):
-            os.mkdir(dir_path)
-            
-    PLOTS.save_1D(dir_path, channel, entries, "Entries", run_name, "Channel", "Entries")
-    PLOTS.save_2D(dir_path, entries_2d, "Entries_2D", run_name, "Wire", "Layer")
-    PLOTS.save_1D(dir_path, timebox_xaxis, timebox_entries, "Cumulative_Timebox", run_name, "TDC units", "Entries", xticks= timebox_ticks)
-    PLOTS.save_1D(dir_path, channel, scint_entries, "Scintillator_event_entries", run_name, "Channel", "Entries")
-    PLOTS.save_2D(dir_path, scint_entries_2d, "Scintillator_event_entries_2D", run_name, "Wire", "Layer")
-    
     
     f.close()
     
