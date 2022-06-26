@@ -10,7 +10,7 @@ The project is in progress. At the moment, for one chamber it's possible to visu
 
 The produced plots are saved in .PNG format in a specific folder that can be specified using the configuration file, and refreshed every 30s. 
 The plots are shown live on a local web page while the monitor is active.
-When the user closes the monitor program, a copy of the cumulative plots is saved in a new folder with the run name at a path chosen by the user via the configuration file.
+
 
 
 ## Table of Contents
