@@ -10,7 +10,7 @@ The project is in progress. At the moment, for one chamber it's possible to visu
 
 The produced plots are saved in .PNG format in a specific folder that can be specified using the configuration file, and refreshed every 30s. 
 The plots are shown live on a local web page while the monitor is active.
-
+If the readout file is not modified for 2 minutes, the monitor stops. 
 
 
 ## Table of Contents
@@ -76,7 +76,7 @@ These plots are saved in a folder with the run name, in the folder specified by 
 Moreover, the produced plots are shown on a local web page, refreshing each time new data is plotted.
 <img src="https://github.com/GiuliaPaggi/MiniDT_online_monitor/blob/main/plot_examples/monitorpage.png" width="1000">
 
-
+If the readout stop and the file read by the monitor program is not modified anymore, the monitor stops after 2 minutes from the last modification.
 
 
 ## Structure of the project
