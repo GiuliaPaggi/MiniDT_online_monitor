@@ -143,7 +143,6 @@ st_size = st_results[6]
 f.seek(st_size)
 
 
-
 try:
     
     while( True ):
@@ -155,11 +154,15 @@ try:
 
         # if reading fails, sleep 0.1s and set pointer back before the failed reading
         if not line:
-
-            #time.sleep(.1)
+            print('No new lines to be read.')
+            # print(time.time() - os.path.getmtime(filename))
+            if time.time() - os.path.getmtime(filename) > 120 :
+                print ('\nReading stopped.\n') 
+                f.close()
+                sys.exit()
             f.seek(where)
+            
         # if the reading is successfull process the string
-        
         else:    
             #reset rate histo
             rate_entries = [0] *64 
@@ -270,18 +273,10 @@ try:
                 PLOTS.update_monitor(dir_path, monitor, [ 'occupancy_monitor.PNG', 'scintillator_monitor.PNG'], str(rate))
             else:
                 PLOTS.update_monitor(dir_path, monitor, [ 'occupancy_monitor.PNG'], str(rate))
-                
-                # if show_plt :
-                #     PLOTS.plot_1D(fig_timebox, ax_timebox[0][0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
-                #     PLOTS.plot_1D(fig_timebox, ax_timebox[1][0], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
-                #     PLOTS.plot_1D(fig_timebox, ax_timebox[0][1], channel, scint_entries, "Scintillator_event_entries", run_name, "Channel", "Entries")
-                #     PLOTS.plot_2D(fig_timebox, ax_timebox[0][2], scint_entries_2d, "Scintillator_event_entries_2D", run_name, "Wire", "Layer")
-                #     PLOTS.plot_1D(fig_timebox, ax_timebox[1][1], channel, scint_rate, "Scintillator_event_rate", run_name, "Channel", "Rate")
-                #     PLOTS.plot_2D(fig_timebox, ax_timebox[1][2], scint_rate_2d, "Scintillator_event_rate_2D", run_name, "Wire", "Layer")
-            
+                     
                 
 except KeyboardInterrupt:
     print ('\nReading stopped.\n') 
-    
+    sys.exit()
     f.close()
     
