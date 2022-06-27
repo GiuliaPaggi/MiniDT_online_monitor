@@ -20,7 +20,7 @@ monitor = st.empty()
 
 # ----- import path from configuration file -----
 config = configparser.ConfigParser()
-config_file = '/home/gpaggi/dtupy/scripts/config.txt'          
+config_file = 'config.txt'                  #/home/gpaggi/dtupy/scripts/
 if os.path.exists(config_file): 
     config.read(config_file)     
 else : 
@@ -159,7 +159,9 @@ try:
             if time.time() - os.path.getmtime(filename) > 120 :
                 print ('\nReading stopped.\n') 
                 f.close()
-                sys.exit()
+                os._exit(0)
+                st.stop()
+                #sys.exit()
             f.seek(where)
             
         # if the reading is successfull process the string
