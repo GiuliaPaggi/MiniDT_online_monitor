@@ -208,10 +208,10 @@ def make_monitor( path, image_names , monitor_name , chamber_number = ''):
     image_names : list
         list of all the images to put in the monitor 
         
-    title : string
+    monitor_name : string
         string with image name 
         
-    chamber_number : strng, optional
+    chamber_number : string, optional
         chamber number, to distinguish the two chambers monitors. The default is '' since only one is working at the moment.
 
     Returns
@@ -290,5 +290,8 @@ def update_monitor(path, placeholder, image_names, rate_):
             st.image(images[1])
     os.chdir( original_path)
 
+
+    
+    
 
     
