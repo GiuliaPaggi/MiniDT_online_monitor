@@ -269,7 +269,7 @@ try:
                 PLOTS.save_2D(dir_path, scint_entries_2d, "Scintillator_event_entries_2D", run_name, "Wire", "Layer")
                 PLOTS.save_1D(dir_path, channel, scint_rate, "Scintillator_event_rate", run_name, "Channel", "Rate")
                 PLOTS.save_2D(dir_path, scint_rate_2d, "Scintillator_event_rate_2D", run_name, "Wire", "Layer")
-                scint_list = ['Cumulative_Timebox.PNG', "Scintillator_event_entries.PNG", "Scintillator_event_rate.PNG",
+                scint_list = ['Cumulative_Timebox.PNG', "Scintillator_event_entries.PNG", "Scintillator_event_entries_2D.PNG",
                                 'Inst_Timebox.PNG', "Scintillator_event_rate.PNG", "Scintillator_event_rate_2D.PNG"]
                 PLOTS.make_monitor(dir_path, scint_list, 'scintillator')
                 PLOTS.update_monitor(dir_path, monitor, [ 'occupancy_monitor.PNG', 'scintillator_monitor.PNG'], str(rate))
