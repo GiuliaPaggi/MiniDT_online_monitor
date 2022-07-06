@@ -5,7 +5,7 @@ from PIL import Image
 import streamlit as st
 
 
-def plot_1D(figure, ax, ch, entries, title, run_number,  xlabel, ylabel, xticks=[0, 8, 16, 24, 32, 40, 48, 56, 63]):
+def plot_1D(figure, ax, ch, entries, title, run_number,  xlabel, ylabel, chamber_number = '', xticks=[0, 8, 16, 24, 32, 40, 48, 56, 63]):
     """    
     The function plots and shows 1D histograms given the x axis and the entries of each bin.
     
@@ -36,8 +36,12 @@ def plot_1D(figure, ax, ch, entries, title, run_number,  xlabel, ylabel, xticks=
     ylabel : string
         Label of y axis
         
-    xticks : list
-        Labels of x axis ticks. The default value is for 1 MiniDT chamber channels.
+    xticks : list, optional
+        Labels of x axis ticks. The default value is for 1 MiniDT chamber channels
+    
+    chamber_number : string, optional
+        chamber number, to distinguish the two chambers monitors. The default is '' since only one is working at the moment
+
     
     Returns
     -------
@@ -56,7 +60,7 @@ def plot_1D(figure, ax, ch, entries, title, run_number,  xlabel, ylabel, xticks=
 
 
     
-def plot_2D(figure, ax, entries, title, run_number, xlabel, ylabel):
+def plot_2D(figure, ax, entries, title, run_number, xlabel, ylabel, chamber_number):
     """    
     The function plots and shows the a 2D histogram given the entries of each bin. 
     
@@ -84,6 +88,10 @@ def plot_2D(figure, ax, entries, title, run_number, xlabel, ylabel):
     ylabel : string
         Label of y axis
     
+    chamber_number : string, optional
+        chamber number, to distinguish the two chambers monitors
+
+    
     Returns
     -------
     None.  
@@ -101,7 +109,7 @@ def plot_2D(figure, ax, entries, title, run_number, xlabel, ylabel):
     plt.show()
 
 
-def save_1D(path, ch, entries, title, namerun, xlabel, ylabel, xticks=[0, 8, 16, 24, 32, 40, 48, 56, 63]):
+def save_1D(path, ch, entries, title, namerun, xlabel, ylabel, chamber_number, xticks=[0, 8, 16, 24, 32, 40, 48, 56, 63]):
     """    
     The function plots and saves as .PNG the a 1D histogram given the entries of each bin.  
     
@@ -129,9 +137,12 @@ def save_1D(path, ch, entries, title, namerun, xlabel, ylabel, xticks=[0, 8, 16,
     ylabel : string
         Label of y axis
     
-    xticks : list
-        Labels of x axis ticks. The default value is for 1 MiniDT chamber channels.
+    xticks : list, optional
+        Labels of x axis ticks. The default value is for 1 MiniDT chamber channels
         
+    chamber_number : string
+        chamber number, to distinguish the two chambers monitors
+
     Returns
     -------
     None.
@@ -143,11 +154,11 @@ def save_1D(path, ch, entries, title, namerun, xlabel, ylabel, xticks=[0, 8, 16,
     ax_s.set_ylabel(ylabel)
     ax_s.set_xticks(xticks)
     ax_s.bar(ch,entries, width =1, color = '#1f77b4', align ='center')
-    ax_s.set_title(namerun + ' - ' +datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
-    fig_s.savefig(path +title+'.PNG') 
+    ax_s.set_title(namerun + ' - ' + chamber_number + ' - '+datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
+    fig_s.savefig(path +chamber_number+'_'+title+'.PNG') 
     plt.close()
     
-def save_2D(path, entries, title, namerun , xlabel, ylabel):
+def save_2D(path, entries, title, namerun , xlabel, ylabel, chamber_number):
     """    
     The function plots and saves as .PNG the a 2D histogram given the entries of each bin. 
     
@@ -177,6 +188,10 @@ def save_2D(path, entries, title, namerun , xlabel, ylabel):
     
     ylabel : string
         Label of y axis
+    
+    chamber_number : string
+        chamber number, to distinguish the two chambers monitors
+
         
     Returns
     -------
@@ -192,11 +207,11 @@ def save_2D(path, entries, title, namerun , xlabel, ylabel):
     ax_s.set_yticks([1, 2, 3, 4])
     m = ax_s.pcolormesh(entries) 
     plt.colorbar(m, ax = ax_s)
-    ax_s.set_title(namerun + ' - '+ datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
-    fig_s.savefig(path+title+'.PNG')
+    ax_s.set_title(namerun + ' - ' + chamber_number + ' - '+ datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
+    fig_s.savefig(path +chamber_number+'_'+title+'.PNG') 
     plt.close()
 
-def make_monitor( path, image_names , monitor_name , chamber_number = ''):
+def make_monitor( path, image_names , monitor_name , chamber_number):
     """
     
 
@@ -211,8 +226,8 @@ def make_monitor( path, image_names , monitor_name , chamber_number = ''):
     monitor_name : string
         string with image name 
         
-    chamber_number : string, optional
-        chamber number, to distinguish the two chambers monitors. The default is '' since only one is working at the moment.
+    chamber_number : string
+        chamber number, to distinguish the two chambers monitors
 
     Returns
     -------
@@ -239,10 +254,9 @@ def make_monitor( path, image_names , monitor_name , chamber_number = ''):
       new_im.paste(second_row[i], (x_offset,heights[0]))
       x_offset += widths[0]
      
-    if not chamber_number == '' :
-        title = 'Chamber_'+chamber_number++'_'+monitor_name+'_monitor.PNG'
-    else:
-        title = monitor_name+'_monitor.PNG'
+
+    title = chamber_number+'_'+monitor_name+'_monitor.PNG'
+
     
     new_im.save(title)
     os.chdir(original_path)
@@ -283,11 +297,15 @@ def update_monitor(path, placeholder, image_names, rate_):
         fig_col1, fig_col2 = st.columns([2, 3])
         with fig_col1:
             st.markdown("### Occupancy Monitor")
-            st.image(images[0])
+            c= st.container()
+            c.image(images[0])
+            c.image(images[1])
             
         with fig_col2:
             st.markdown("### Timebox and Scintillator Occupancy")
-            st.image(images[1])
+            c= st.container()
+            c.image(images[2])
+            c.image(images[3])
     os.chdir( original_path)
 
 

@@ -100,39 +100,55 @@ layer=[4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4
 wire=[1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12,13,13,13,13,14,14,14,14,15,15,15,15,16,16,16,16]
 
 
-channel = range(64)
-pins = obdt_connectors['a'] + obdt_connectors['b'] + obdt_connectors['c'] + obdt_connectors['d']
+channel = range(128)
+pins = obdt_connectors['a'] + obdt_connectors['b'] + obdt_connectors['c'] + obdt_connectors['d'] + obdt_connectors['e'] + obdt_connectors['f'] + obdt_connectors['k'] +obdt_connectors['l']
 
 if show_plt:
     # ----- set interactive mode so that pyplot.show() displays the figures and immediately returns ----
     plt.ion() 
-    fig, ax = plt.subplots(2, 2, figsize = (15, 10))
-    fig_timebox, ax_timebox = plt.subplots(2, 3, figsize = (15, 10))
+    fig, ax = plt.subplots(4, 2, figsize = (15, 10))
+    fig_timebox, ax_timebox = plt.subplots(4, 3, figsize = (15, 10))
+
+x_axis = range(64)
 
 # ----- set up 1d channel occupancy -----
-entries = [0] *64 
+entries_CH7 = [0] *64 
+entries_CH8 = [0] *64 
 
 # ----- set up 2d chamber occupancy -----
-entries_2d = np.array([[0]*16]*4)
+entries_2d_CH7 = np.array([[0]*16]*4)
+entries_2d_CH8 = np.array([[0]*16]*4)
 
 # ------ set up rate ------
-rate_entries = [0] *64 
+rate_entries_CH7 = [0] *64 
+rate_entries_CH8 = [0] *64 
 
 # ----- set up 2d rate -----
-rate_2d = np.array([[0]*16]*4, dtype = float)
+rate_2d_CH7 = np.array([[0]*16]*4, dtype = float)
+rate_2d_CH8 = np.array([[0]*16]*4, dtype = float)
 
 # ----- set up timebox cumulative and instantaneous -----
 timebox_xaxis = range(200)
-timebox_entries = [0] *200
-inst_timebox = []
-inst_timebox_entries = [0] *200
 timebox_ticks = [0, 25, 50, 75, 100, 125, 150, 175, 200]
 
+timebox_entries_CH7 = [0] *200
+inst_timebox_CH7 = []
+inst_timebox_entries_CH7 = [0] *200
+
+timebox_entries_CH8 = [0] *200
+inst_timebox_CH8 = []
+inst_timebox_entries_CH8 = [0] *200
+
 # ----- set up occupancy of scintillators events -----
-scint_entries = [0]*64
-scint_entries_2d = np.array([[0]*16]*4)
-scint_rate = [0]*64
-scint_rate_2d = np.array([[0]*16]*4, dtype = float)
+scint_entries_CH7 = [0]*64
+scint_entries_2d_CH7 = np.array([[0]*16]*4)
+scint_rate_CH7 = [0]*64
+scint_rate_2d_CH7 = np.array([[0]*16]*4, dtype = float)
+
+scint_entries_CH8 = [0]*64
+scint_entries_2d_CH8 = np.array([[0]*16]*4)
+scint_rate_CH8 = [0]*64
+scint_rate_2d_CH8 = np.array([[0]*16]*4, dtype = float)
 
 
 # ------ read file ------
@@ -166,12 +182,19 @@ try:
             
         # if the reading is successfull process the string
         else:    
-            #reset rate histo
-            rate_entries = [0] *64 
-            rate_2d [rate_2d>0] = 0
-            inst_timebox_entries = [0] *200
-            scint_rate = [0] *64
-            scint_rate_2d[scint_rate_2d>0] = 0
+            #reset rate histo chamber 7
+            rate_entries_CH7 = [0] *64 
+            rate_2d_CH7 [rate_2d_CH7>0] = 0
+            inst_timebox_entries_CH7 = [0] *200
+            scint_rate_CH7 = [0] *64
+            scint_rate_2d_CH7 [scint_rate_2d_CH7>0] = 0
+            
+            #reset rate histo chamber 7
+            rate_entries_CH8 = [0] *64 
+            rate_2d_CH8 [rate_2d_CH8>0] = 0
+            inst_timebox_entries_CH8 = [0] *200
+            scint_rate_CH8 = [0] *64
+            scint_rate_2d_CH8 [scint_rate_2d_CH8>0] = 0
             
             scint = False
             #check line integrity
@@ -188,16 +211,33 @@ try:
                 try: 
                     data_pin = int( line[i].split(' ')[3])
                     data_channel = pins.index( data_pin )
-                    # ---- fill 1d occupancy ----
-                    entries[data_channel] +=1
-                    rate_entries[data_channel] += 1/delta_t
                     
-                    
-                    data_wires = wire[data_channel]
-                    data_layers = layer[data_channel]
-                    # ---- fill 2d occupancy ----
-                    entries_2d[data_layers -1][data_wires -1] +=1
-                    rate_2d[data_layers -1][data_wires -1] += 1/delta_t
+                    # CHAMBER 7
+                    if data_channel < 64:
+                        # ---- fill 1d occupancy ----
+                        entries_CH7[data_channel] +=1
+                        rate_entries_CH7[data_channel] += 1/delta_t
+                        
+                        
+                        data_wires = wire[data_channel]
+                        data_layers = layer[data_channel]
+                        # ---- fill 2d occupancy ----
+                        entries_2d_CH7[data_layers -1][data_wires -1] +=1
+                        rate_2d_CH7[data_layers -1][data_wires -1] += 1/delta_t
+                        
+                    #CHAMBER 8
+                    else: 
+                        data_channel = data_channel-64
+                        # ---- fill 1d occupancy ----
+                        entries_CH8[data_channel] +=1
+                        rate_entries_CH8[data_channel] += 1/delta_t
+                        
+                        
+                        data_wires = wire[data_channel]
+                        data_layers = layer[data_channel]
+                        # ---- fill 2d occupancy ----
+                        entries_2d_CH8[data_layers -1][data_wires -1] +=1
+                        rate_2d_CH8[data_layers -1][data_wires -1] += 1/delta_t
                     
                     
                     
@@ -215,14 +255,6 @@ try:
                         hit_pin = int(line[ i-j ].split(' ')[3]  )
                         if hit_pin != 230:
                             hit_channel = pins.index(hit_pin)
-                            scint_entries[hit_channel] += 1
-                            scint_rate[hit_channel] += 1/delta_t
-                            
-                            #fill scintillator 2d occupancy
-                            hit_wire = wire[hit_channel]
-                            hit_layer = layer[hit_channel]
-                            scint_entries_2d[hit_layer-1][hit_wire -1] +=1
-                            scint_rate_2d[hit_layer-1][hit_wire -1] += 1/delta_t
                             
                             #compute hits time
                             hit_bx =  int( line[ i-j ].split(' ')[4] )
@@ -231,50 +263,112 @@ try:
                             #compute time diff and fill a histo with bin width = tdc resolution for cumulative timebox
                             time_diff= hit_time - tr_time + 1000
                             index=round(time_diff * 30/25 *.125) 
-                            try: 
-                                timebox_entries[index] +=1
-                                inst_timebox_entries[index] +=1
-                            except IndexError: 
-                                print(time_diff, line[i], line[i-j] )
-                                #sys.exit()
+                            
+                            if hit_channel <64:
+                                #fill scintillator 1d occupancy
+                                scint_entries_CH7[hit_channel] += 1
+                                scint_rate_CH7[hit_channel] += 1/delta_t
+                                
+                                #fill scintillator 2d occupancy
+                                hit_wire = wire[hit_channel]
+                                hit_layer = layer[hit_channel]
+                                scint_entries_2d_CH7[hit_layer-1][hit_wire -1] +=1
+                                scint_rate_2d_CH7[hit_layer-1][hit_wire -1] += 1/delta_t
+    
+                                try: 
+                                    timebox_entries_CH7[index] +=1
+                                    inst_timebox_entries_CH7[index] +=1
+                                except IndexError: 
+                                    print(time_diff, index)
+                            else:
+                                hit_channel = hit_channel - 64
+                                #fill scintillator 1d occupancy
+                                scint_entries_CH8[hit_channel] += 1
+                                scint_rate_CH8[hit_channel] += 1/delta_t
+                                
+                                #fill scintillator 2d occupancy
+                                hit_wire = wire[hit_channel]
+                                hit_layer = layer[hit_channel]
+                                scint_entries_2d_CH8[hit_layer-1][hit_wire -1] +=1
+                                scint_rate_2d_CH8[hit_layer-1][hit_wire -1] += 1/delta_t
+    
+                                try: 
+                                    timebox_entries_CH8[index] +=1
+                                    inst_timebox_entries_CH8[index] +=1
+                                except IndexError: 
+                                    print(time_diff, index )
+
                         
                         j +=1
             # display plots with matplotlib
             if show_plt:
-                PLOTS.plot_1D(fig, ax[0][0], channel, entries, "Entries", n_run, "Channel", "Entries")
-                PLOTS.plot_2D(fig, ax[1][0], entries_2d, "Entries_2D", n_run, "Wire", "Layer")
-                PLOTS.plot_1D(fig, ax[0][1], channel, rate_entries, "Rate", n_run, "Channel", "Rate (Hz)")
-                PLOTS.plot_2D(fig, ax[1][1], rate_2d, "Rate_2D", n_run, "Wire", "Layer")   
+                #plot CHAMBER 7
+                PLOTS.plot_1D(fig, ax[0][0], x_axis, entries_CH7, "Entries", n_run, "Channel", "Entries", 'Chamber-7')
+                PLOTS.plot_2D(fig, ax[1][0], entries_2d_CH7, "Entries_2D", n_run, "Wire", "Layer", 'Chamber-7' )
+                PLOTS.plot_1D(fig, ax[0][1], x_axis, rate_entries_CH7, "Rate", n_run, "Channel", "Rate (Hz)", 'Chamber-7')
+                PLOTS.plot_2D(fig, ax[1][1], rate_2d_CH7, "Rate_2D", n_run, "Wire", "Layer", 'Chamber-7')   
+                #plot CHAMBER 8
+                PLOTS.plot_1D(fig, ax[2][0], x_axis, entries_CH8, "Entries", n_run, "Channel", "Entries", 'Chamber-8')
+                PLOTS.plot_2D(fig, ax[3][0], entries_2d_CH8, "Entries_2D", n_run, "Wire", "Layer", 'Chamber-8' )
+                PLOTS.plot_1D(fig, ax[2][1], x_axis, rate_entries_CH8, "Rate", n_run, "Channel", "Rate (Hz)", 'Chamber-8')
+                PLOTS.plot_2D(fig, ax[3][1], rate_2d_CH8, "Rate_2D", n_run, "Wire", "Layer", 'Chamber-8')   
                 if scint:
-                    PLOTS.plot_1D(fig_timebox, ax_timebox[0][0], timebox_xaxis , timebox_entries, "Cumulative_Timebox", n_run, "TDC units", "Entries" , xticks= timebox_ticks)
-                    PLOTS.plot_1D(fig_timebox, ax_timebox[1][0], timebox_xaxis , inst_timebox_entries, "Inst_Timebox", n_run, "TDC units", "Entries",  xticks= timebox_ticks )
-                    PLOTS.plot_1D(fig_timebox, ax_timebox[0][1], channel, scint_entries, "Scintillator_event_entries", run_name, "Channel", "Entries")
-                    PLOTS.plot_2D(fig_timebox, ax_timebox[0][2], scint_entries_2d, "Scintillator_event_entries_2D", run_name, "Wire", "Layer")
-                    PLOTS.plot_1D(fig_timebox, ax_timebox[1][1], channel, scint_rate, "Scintillator_event_rate", run_name, "Channel", "Rate")
-                    PLOTS.plot_2D(fig_timebox, ax_timebox[1][2], scint_rate_2d, "Scintillator_event_rate_2D", run_name, "Wire", "Layer")
+                    #plot scint CHAMBER 7
+                    PLOTS.plot_1D(fig_timebox, ax_timebox[0][0], timebox_xaxis , timebox_entries_CH7, "Cumulative_Timebox", n_run, "TDC units", "Entries" , 'Chamber-7',  xticks= timebox_ticks)
+                    PLOTS.plot_1D(fig_timebox, ax_timebox[1][0], timebox_xaxis , inst_timebox_entries_CH7, "Inst_Timebox", n_run, "TDC units", "Entries", 'Chamber-7' ,  xticks= timebox_ticks )
+                    PLOTS.plot_1D(fig_timebox, ax_timebox[0][1], channel, scint_entries_CH7, "Scintillator_event_entries", run_name, "Channel", "Entries", 'Chamber-7')
+                    PLOTS.plot_2D(fig_timebox, ax_timebox[0][2], scint_entries_2d_CH7, "Scintillator_event_entries_2D", run_name, "Wire", "Layer", 'Chamber-7')
+                    PLOTS.plot_1D(fig_timebox, ax_timebox[1][1], channel, scint_rate_CH7, "Scintillator_event_rate", run_name, "Channel", "Rate", 'Chamber-7')
+                    PLOTS.plot_2D(fig_timebox, ax_timebox[1][2], scint_rate_2d_CH7, "Scintillator_event_rate_2D", run_name, "Wire", "Layer", 'Chamber-7')
+                    #plot scint CHAMBER 8
+                    PLOTS.plot_1D(fig_timebox, ax_timebox[2][0], timebox_xaxis , timebox_entries_CH8, "Cumulative_Timebox", n_run, "TDC units", "Entries" , 'Chamber-8',  xticks= timebox_ticks)
+                    PLOTS.plot_1D(fig_timebox, ax_timebox[3][0], timebox_xaxis , inst_timebox_entries_CH8, "Inst_Timebox", n_run, "TDC units", "Entries", 'Chamber-8' ,  xticks= timebox_ticks )
+                    PLOTS.plot_1D(fig_timebox, ax_timebox[2][1], channel, scint_entries_CH8, "Scintillator_event_entries", run_name, "Channel", "Entries", 'Chamber-8')
+                    PLOTS.plot_2D(fig_timebox, ax_timebox[2][2], scint_entries_2d_CH8, "Scintillator_event_entries_2D", run_name, "Wire", "Layer", 'Chamber-8')
+                    PLOTS.plot_1D(fig_timebox, ax_timebox[3][1], channel, scint_rate_CH8, "Scintillator_event_rate", run_name, "Channel", "Rate", 'Chamber-8')
+                    PLOTS.plot_2D(fig_timebox, ax_timebox[3][2], scint_rate_2d_CH8, "Scintillator_event_rate_2D", run_name, "Wire", "Layer", 'Chamber-8')
  
             # save plots in folder and update monitor web page 
-            PLOTS.save_1D(dir_path, channel, entries, "Entries", run_name, "Channel", "Entries")
-            PLOTS.save_2D(dir_path, entries_2d, "Entries_2D", run_name, "Wire", "Layer")
-            PLOTS.save_1D(dir_path, channel, rate_entries, "Rate", run_name, "Channel", "Rate (Hz)")
-            PLOTS.save_2D(dir_path, rate_2d, "Rate_2D", run_name, "Wire", "Layer")
-            images_list = ['Entries.PNG', 'Entries_2D.PNG', 'Rate.PNG', 'Rate_2D.PNG']
-            PLOTS.make_monitor(dir_path, images_list, 'occupancy')
+            #save CHAMBER 7
+            PLOTS.save_1D(dir_path, x_axis, entries_CH7, "Entries", run_name, "Channel", "Entries", 'Chamber-7')
+            PLOTS.save_2D(dir_path, entries_2d_CH7, "Entries_2D", run_name, "Wire", "Layer", 'Chamber-7')
+            PLOTS.save_1D(dir_path, x_axis, rate_entries_CH7, "Rate", run_name, "Channel", "Rate (Hz)", 'Chamber-7')
+            PLOTS.save_2D(dir_path, rate_2d_CH7, "Rate_2D", run_name, "Wire", "Layer", 'Chamber-7')
+            images_list = ['Chamber-7_Entries.PNG', 'Chamber-7_Entries_2D.PNG', 'Chamber-7_Rate.PNG', 'Chamber-7_Rate_2D.PNG']
+            PLOTS.make_monitor(dir_path, images_list, 'occupancy', 'Chamber-7')
+            #save CHAMBER 8
+            PLOTS.save_1D(dir_path, x_axis, entries_CH8, "Entries", run_name, "Channel", "Entries", 'Chamber-8')
+            PLOTS.save_2D(dir_path, entries_2d_CH8, "Entries_2D", run_name, "Wire", "Layer", 'Chamber-8')
+            PLOTS.save_1D(dir_path, x_axis, rate_entries_CH8, "Rate", run_name, "Channel", "Rate (Hz)", 'Chamber-8')
+            PLOTS.save_2D(dir_path, rate_2d_CH8, "Rate_2D", run_name, "Wire", "Layer", 'Chamber-8')
+            images_list = ['Chamber-8_Entries.PNG', 'Chamber-8_Entries_2D.PNG', 'Chamber-8_Rate.PNG', 'Chamber-8_Rate_2D.PNG']
+            PLOTS.make_monitor(dir_path, images_list, 'occupancy', 'Chamber-8')
             
         
             if scint:
-                PLOTS.save_1D(dir_path, timebox_xaxis, timebox_entries, "Cumulative_Timebox", run_name, "TDC units", "Entries", xticks= timebox_ticks)
-                PLOTS.save_1D(dir_path, timebox_xaxis, inst_timebox_entries, "Inst_Timebox",run_name, "TDC units", "Entries", xticks= timebox_ticks)
-                PLOTS.save_1D(dir_path, channel, scint_entries, "Scintillator_event_entries", run_name, "Channel", "Entries")
-                PLOTS.save_2D(dir_path, scint_entries_2d, "Scintillator_event_entries_2D", run_name, "Wire", "Layer")
-                PLOTS.save_1D(dir_path, channel, scint_rate, "Scintillator_event_rate", run_name, "Channel", "Rate")
-                PLOTS.save_2D(dir_path, scint_rate_2d, "Scintillator_event_rate_2D", run_name, "Wire", "Layer")
-                scint_list = ['Cumulative_Timebox.PNG', "Scintillator_event_entries.PNG", "Scintillator_event_entries_2D.PNG",
-                                'Inst_Timebox.PNG', "Scintillator_event_rate.PNG", "Scintillator_event_rate_2D.PNG"]
-                PLOTS.make_monitor(dir_path, scint_list, 'scintillator')
-                PLOTS.update_monitor(dir_path, monitor, [ 'occupancy_monitor.PNG', 'scintillator_monitor.PNG'], str(rate))
+                #save scint CHAMBER 7
+                PLOTS.save_1D(dir_path, timebox_xaxis, timebox_entries_CH7, "Cumulative_Timebox", run_name, "TDC units", "Entries", 'Chamber-7', xticks= timebox_ticks)
+                PLOTS.save_1D(dir_path, timebox_xaxis, inst_timebox_entries_CH7, "Inst_Timebox",run_name, "TDC units", "Entries", 'Chamber-7', xticks= timebox_ticks)
+                PLOTS.save_1D(dir_path, x_axis, scint_entries_CH7, "Scintillator_event_entries", run_name, "Channel", "Entries", 'Chamber-7')
+                PLOTS.save_2D(dir_path, scint_entries_2d_CH7, "Scintillator_event_entries_2D", run_name, "Wire", "Layer", 'Chamber-7')
+                PLOTS.save_1D(dir_path, x_axis, scint_rate_CH7, "Scintillator_event_rate", run_name, "Channel", "Rate", 'Chamber-7')
+                PLOTS.save_2D(dir_path, scint_rate_2d_CH7, "Scintillator_event_rate_2D", run_name, "Wire", "Layer", 'Chamber-7')
+                scint_list = ['Chamber-7_Cumulative_Timebox.PNG', "Chamber-7_Scintillator_event_entries.PNG", "Chamber-7_Scintillator_event_entries_2D.PNG",
+                                'Chamber-7_Inst_Timebox.PNG', "Chamber-7_Scintillator_event_rate.PNG", "Chamber-7_Scintillator_event_rate_2D.PNG"]
+                PLOTS.make_monitor(dir_path, scint_list, 'scintillator', 'Chamber-7')
+                #save scint CHAMBER 8
+                PLOTS.save_1D(dir_path, timebox_xaxis, timebox_entries_CH8, "Cumulative_Timebox", run_name, "TDC units", "Entries", 'Chamber-8', xticks= timebox_ticks)
+                PLOTS.save_1D(dir_path, timebox_xaxis, inst_timebox_entries_CH8, "Inst_Timebox",run_name, "TDC units", "Entries", 'Chamber-8', xticks= timebox_ticks)
+                PLOTS.save_1D(dir_path, x_axis, scint_entries_CH8, "Scintillator_event_entries", run_name, "Channel", "Entries", 'Chamber-8')
+                PLOTS.save_2D(dir_path, scint_entries_2d_CH8, "Scintillator_event_entries_2D", run_name, "Wire", "Layer", 'Chamber-8')
+                PLOTS.save_1D(dir_path, x_axis, scint_rate_CH8, "Scintillator_event_rate", run_name, "Channel", "Rate", 'Chamber-8')
+                PLOTS.save_2D(dir_path, scint_rate_2d_CH8, "Scintillator_event_rate_2D", run_name, "Wire", "Layer", 'Chamber-8')
+                scint_list = ['Chamber-8_Cumulative_Timebox.PNG', "Chamber-8_Scintillator_event_entries.PNG", "Chamber-8_Scintillator_event_entries_2D.PNG",
+                                'Chamber-8_Inst_Timebox.PNG', "Chamber-8_Scintillator_event_rate.PNG", "Chamber-8_Scintillator_event_rate_2D.PNG"]
+                PLOTS.make_monitor(dir_path, scint_list, 'scintillator', 'Chamber-8')
+                PLOTS.update_monitor(dir_path, monitor, ['Chamber-7_occupancy_monitor.PNG', 'Chamber-8_occupancy_monitor.PNG',  'Chamber-7_scintillator_monitor.PNG', 'Chamber-8_scintillator_monitor.PNG'], str(rate))
             else:
-                PLOTS.update_monitor(dir_path, monitor, [ 'occupancy_monitor.PNG'], str(rate))
+                PLOTS.update_monitor(dir_path, monitor, ['Chamber-7_occupancy_monitor.PNG', 'Chamber-8_occupancy_monitor.PNG'], str(rate))
                      
                 
 except KeyboardInterrupt:
