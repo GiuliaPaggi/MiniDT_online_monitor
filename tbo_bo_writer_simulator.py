@@ -26,7 +26,7 @@ obdt_connectors = {
   }
 
 
-pins = obdt_connectors['a']+obdt_connectors['b']+obdt_connectors['c']+obdt_connectors['d']+obdt_connectors['scint']
+pins = obdt_connectors['a']+obdt_connectors['b']+obdt_connectors['c']+obdt_connectors['d']+obdt_connectors['scint']+obdt_connectors['e']+obdt_connectors['f']+obdt_connectors['k']+obdt_connectors['l']
 
 # ------- open data file ------- 
 
@@ -51,7 +51,7 @@ try:
         deltatime = t2-t1
         deltaprint = t2-old_t
         hit_bx = random.randint(1, 3564)
-        hit_ch = pins[random.randint(0, 64)] # 0-63 chamber pins, 64 the scintillator pin
+        hit_ch = pins[random.randint(0, 128)] # 0-63 chamber pins, 64 the scintillator pin
         hit_orbit = random.randint(0, 4095)
         hit_tdc = random.randint(0, 30)
         
@@ -61,7 +61,7 @@ try:
             sys.stdout.flush()
             tr_time = hit_bx*25 + hit_tdc*25/30 
             
-            L4ch=random.randrange(0, 60, 4)  #select layer 4 (L4) channels, using https://github.com/zucchett/MiniDT/wiki
+            L4ch=random.randrange(0, 124, 4)  #select layer 4 (L4) channels, using https://github.com/zucchett/MiniDT/wiki
             if hit_bx > 15 : mx_bx= 15
             else : mx_bx = hit_bx
             channels = [pins[L4ch+i] for i in range(4)]
