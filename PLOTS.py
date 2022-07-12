@@ -97,13 +97,15 @@ def plot_2D(figure, ax, entries, title, run_number, xlabel, ylabel, chamber_numb
     None.  
       
     """
-    run_title = "Run " + str(run_number) 
+    run_title = "Run " + str(run_number)
+    scale_max = 1.1*entries.max()
+    scale_min = .9*entries.min()
     ax.cla()
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.set_xticks([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]) 
     ax.set_yticks([1, 2, 3, 4])
-    ax.pcolormesh(entries) 
+    ax.pcolormesh(entries, vmin = scale_min, vmax = scale_max) 
     ax.set_title(run_title + ' - ' + datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
     plt.pause(.0001)
     plt.show()
@@ -200,12 +202,14 @@ def save_2D(path, entries, title, namerun , xlabel, ylabel, chamber_number):
     """
     
     fig_s, ax_s = plt.subplots(1, 1, figsize = (15, 10))
+    scale_max = 1.1*entries.max()
+    scale_min = .9*entries.min()
     ax_s.cla()
     ax_s.set_xlabel(xlabel)
     ax_s.set_ylabel(ylabel)
     ax_s.set_xticks([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]) 
     ax_s.set_yticks([1, 2, 3, 4])
-    m = ax_s.pcolormesh(entries) 
+    m = ax_s.pcolormesh(entries, vmin = scale_min, vmax = scale_max) 
     plt.colorbar(m, ax = ax_s)
     ax_s.set_title(namerun + ' - ' + chamber_number + ' - '+ datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
     fig_s.savefig(path +chamber_number+'_'+title+'.PNG') 
@@ -300,12 +304,14 @@ def update_monitor(path, placeholder, image_names, rate_):
             c= st.container()
             c.image(images[0])
             c.image(images[1])
-            
-        with fig_col2:
-            st.markdown("### Timebox and Scintillator Occupancy")
-            c= st.container()
-            c.image(images[2])
-            c.image(images[3])
+            #print('ok', flush = True)
+        if len(images) == 4:
+            with fig_col2:
+                st.markdown("### Timebox and Scintillator Occupancy")
+                c= st.container()
+                c.image(images[2])
+                c.image(images[3])
+                #print('ok', flush = True)
     os.chdir( original_path)
 
 
