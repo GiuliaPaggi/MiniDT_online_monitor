@@ -302,14 +302,18 @@ def update_monitor(path, placeholder, image_names, rate_):
         with fig_col1:
             st.markdown("### Occupancy Monitor")
             c= st.container()
+            c.markdown("#### Chamber 7")
             c.image(images[0])
+            c.markdown("#### Chamber 8")
             c.image(images[1])
             #print('ok', flush = True)
         if len(images) == 4:
             with fig_col2:
                 st.markdown("### Timebox and Scintillator Occupancy")
                 c= st.container()
+                c.markdown("#### Chamber 7")
                 c.image(images[2])
+                c.markdown("#### Chamber 8")
                 c.image(images[3])
                 #print('ok', flush = True)
     os.chdir( original_path)
