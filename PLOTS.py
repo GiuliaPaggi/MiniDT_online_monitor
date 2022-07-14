@@ -317,6 +317,85 @@ def update_monitor(path, placeholder, image_names, rate_):
                 c.image(images[3])
                 #print('ok', flush = True)
     os.chdir( original_path)
+    
+
+
+def draw_digis_onech(x0, y0, hits_channels):
+    """
+    
+
+    Parameters
+    ----------
+    x0 : int
+        x coordinate of the lower left corner of the chamber representation
+        
+    y0 : int
+        x coordinate of the lower left corner of the chamber representation
+        
+    hits_channels : list
+        list of channels of hits in chamber for the given event
+
+    Returns
+    -------
+    None.
+
+    """
+    layer=[4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1]
+    wire=[1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12,13,13,13,13,14,14,14,14,15,15,15,15,16,16,16,16]
+    cells={}
+    wires={}
+    b=42
+    h=13
+    off=[0,-b/2,0,-b/2]
+    #print([p[0] for pp in pat for p in pp])
+    for ch in range(0,64):
+        l=layer[ch]
+        w=wire[ch]
+        x=b*(w-1)+off[l-1]+x0
+        y=h*(l-1)+y0
+
+        if (ch in hits_channels): 
+            mfc='aquamarine'
+        else:
+            mfc='w'
+        cells['L'+str(l)+'W'+str(w)]=plt.Rectangle((x,y),b,h,ec='k',fc=mfc)
+        wires['L'+str(l)+'W'+str(w)]=plt.Circle((x+b/2,y+h/2),radius=1,fc='k')
+        plt.gca().add_patch(cells['L'+str(l)+'W'+str(w)])
+        plt.gca().add_patch(wires['L'+str(l)+'W'+str(w)])
+        
+def event_display(displaypath, n_event, hits_ch7, hits_ch8):
+    """
+    
+
+    Parameters
+    ----------
+    displaypath : string
+        path to folder in which the event diplay will be saved
+    
+    n_event : int
+        event number in current monitor run
+        
+    hits_ch7 : list
+        hits in chamber 7
+        
+    hits_ch8 : list
+        hits in chamber 8
+
+    Returns
+    -------
+    None.
+
+    """
+    plt.figure(figsize=(12, 12), dpi=300)
+    ax = plt.gca()
+    ax.axes.xaxis.set_ticklabels([])
+    ax.axes.yaxis.set_ticklabels([])
+    plt.tick_params(bottom = False, left=False)      
+    draw_digis_onech(0, 160, hits_ch8)
+    draw_digis_onech(0, 0, hits_ch7)
+    plt.axis('scaled')
+    title = displaypath+'Event_'+str(n_event)+'.PNG'
+    plt.savefig(title)
 
 
     

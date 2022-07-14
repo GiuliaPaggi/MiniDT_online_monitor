@@ -14,6 +14,7 @@ import PLOTS
 # ------ set up webpage ------
 st.set_page_config(
     page_title="Monitor",
+    page_icon=':flag-bo:',
     layout="wide",
 )
 monitor = st.empty()
@@ -55,14 +56,20 @@ if n_run == -1:
     data_path = ''
     plot_path = ''
     dir_path = run_name+'/'
+    display_path = dir_path+'Event_display/'
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)
+    if not os.path.exists(display_path):
+        os.mkdir(display_path)
 
 else : 
     filename =  run_name + ".txt"  
     dir_path = plot_path+run_name+'/' 
+    display_path = dir_path+'Event_display/'
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)          
+    if not os.path.exists(display_path):
+        os.mkdir(display_path)
 
 
 # ----- check if the file exists, close the program if it does not -----
@@ -158,6 +165,7 @@ st_results = os.stat(data_path+filename)
 st_size = st_results[6]
 f.seek(st_size)
 
+event_number = 0
 
 try:
     
@@ -203,7 +211,7 @@ try:
         
             if not line[len(line)-1].endswith('\n'):
                 line.pop(len(line)-1)
-            
+
             delta_t = float( line[len(line)-1].split(' ')[1] )- float(line[0].split(' ')[1] )
             rate =round (len(line)/delta_t, 2)
             
@@ -250,12 +258,14 @@ try:
                     tr_tdc = int( line[ i ].split(' ')[5].strip('\n') )
                     tr_time = tr_bx*25.0 + tr_tdc*25/30
                     j=1
+                    event_ch_CH7 = []
+                    event_ch_CH8 = []
                     while( line[ i ].split(' ')[2] == line[ i-j ].split(' ')[2]) :
                         #fill scintillator channel occupancy
                         hit_pin = int(line[ i-j ].split(' ')[3]  )
+                    
                         if hit_pin != 230:
                             hit_channel = pins.index(hit_pin)
-                            
                             #compute hits time
                             hit_bx =  int( line[ i-j ].split(' ')[4] )
                             hit_tdc = int( line[ i-j ].split(' ')[5].strip('\n') )
@@ -265,6 +275,7 @@ try:
                             index=round(time_diff * 30/25 *.125) 
                             
                             if hit_channel <64:
+                                event_ch_CH7.append(hit_channel)
                                 #fill scintillator 1d occupancy
                                 scint_entries_CH7[hit_channel] += 1
                                 scint_rate_CH7[hit_channel] += 1/delta_t
@@ -282,6 +293,7 @@ try:
                                     print(time_diff, index)
                             else:
                                 hit_channel = hit_channel - 64
+                                event_ch_CH8.append(hit_channel)
                                 #fill scintillator 1d occupancy
                                 scint_entries_CH8[hit_channel] += 1
                                 scint_rate_CH8[hit_channel] += 1/delta_t
@@ -300,6 +312,12 @@ try:
 
                         
                         j +=1
+                    if len(event_ch_CH7) > 1 or len(event_ch_CH8) > 1 :
+                        # print(len(event_ch_CH7))
+                        # print(len(event_ch_CH8))
+                        # PLOTS.draw_event_onech(event_ch_CH7, layer, wire)
+                        PLOTS.event_display(display_path, event_number, event_ch_CH7, event_ch_CH8)
+                        event_number +=1
             # display plots with matplotlib
             if show_plt:
                 #plot CHAMBER 7
