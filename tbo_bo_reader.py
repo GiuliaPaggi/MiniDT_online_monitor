@@ -33,6 +33,7 @@ else :
 
 data_path = config.get('path', 'DataFolderPath')
 plot_path = config.get('path', 'PlotFolderPath')
+#display_path = config.get('path', 'LiveFolderPath')
 logfile_path = config.get('file', 'LogFile')
 show_plt = config.getboolean('option', 'ShowPlots')
 # ----- run number can be passed as an argument from the terminal command line -----
@@ -165,8 +166,10 @@ st_results = os.stat(data_path+filename)
 st_size = st_results[6]
 f.seek(st_size)
 
+#total number of scintillator+ 4 hits per chamber events
 event_number = 0
-
+#total number of scintillator events
+scint_event = 0
 try:
     
     while( True ):
@@ -190,6 +193,9 @@ try:
             
         # if the reading is successfull process the string
         else:    
+            #number of event display file, in range 0-12
+            display_event = 0
+            
             #reset rate histo chamber 7
             rate_entries_CH7 = [0] *64 
             rate_2d_CH7 [rate_2d_CH7>0] = 0
@@ -251,6 +257,7 @@ try:
                     
                 except ValueError:
                     data_pin=230
+                    scint_event =+1
                     scint = True
                     #recover trigger hit info
                     tr_systime = float(line[ i ].split(' ')[1])
@@ -259,7 +266,9 @@ try:
                     tr_time = tr_bx*25.0 + tr_tdc*25/30
                     j=1
                     event_ch_CH7 = []
+                    event_info_CH7 = "Chamber 7:\n"
                     event_ch_CH8 = []
+                    event_info_CH8 = "Chamber 8:\n"
                     while( line[ i ].split(' ')[2] == line[ i-j ].split(' ')[2]) :
                         #fill scintillator channel occupancy
                         hit_pin = int(line[ i-j ].split(' ')[3]  )
@@ -273,9 +282,13 @@ try:
                             #compute time diff and fill a histo with bin width = tdc resolution for cumulative timebox
                             time_diff= hit_time - tr_time + 1000
                             index=round(time_diff * 30/25 *.125) 
+                            hit_orbit = int( line[ i-j ].split(' ')[2] )
                             
                             if hit_channel <64:
                                 event_ch_CH7.append(hit_channel)
+                                hit_info = "Ch: "+str(hit_channel)+" Orbit: " +str(hit_orbit)+" BX: "+ str(hit_bx)+"\n"
+                                event_ch_CH7.append(hit_channel)
+                                event_info_CH7+=hit_info
                                 #fill scintillator 1d occupancy
                                 scint_entries_CH7[hit_channel] += 1
                                 scint_rate_CH7[hit_channel] += 1/delta_t
@@ -293,7 +306,9 @@ try:
                                     print(time_diff, index)
                             else:
                                 hit_channel = hit_channel - 64
+                                hit_info = "Ch: "+str(hit_channel)+" Orbit: " +str(hit_orbit)+" BX: "+ str(hit_bx)+"\n"
                                 event_ch_CH8.append(hit_channel)
+                                event_info_CH8+=hit_info
                                 #fill scintillator 1d occupancy
                                 scint_entries_CH8[hit_channel] += 1
                                 scint_rate_CH8[hit_channel] += 1/delta_t
@@ -312,12 +327,17 @@ try:
 
                         
                         j +=1
-                    if len(event_ch_CH7) > 1 or len(event_ch_CH8) > 1 :
-                        # print(len(event_ch_CH7))
-                        # print(len(event_ch_CH8))
-                        # PLOTS.draw_event_onech(event_ch_CH7, layer, wire)
-                        PLOTS.event_display(display_path, event_number, event_ch_CH7, event_ch_CH8)
-                        event_number +=1
+
+                    if len(event_ch_CH7) > 3 and len(event_ch_CH8) > 3 :
+                        event_number+=1 
+                        if event_number%23 == 0:
+
+                            PLOTS.event_display(display_path, display_event, event_ch_CH7, event_info_CH7, event_ch_CH8, event_info_CH8, run_name, event_number)
+                            display_event+=1
+            
+                
+            #compute scintillator rate
+            scint_rate=round( scint_event/delta_t, 2)
             # display plots with matplotlib
             if show_plt:
                 #plot CHAMBER 7
@@ -384,13 +404,12 @@ try:
                 scint_list = ['Chamber-8_Cumulative_Timebox.PNG', "Chamber-8_Scintillator_event_entries.PNG", "Chamber-8_Scintillator_event_entries_2D.PNG",
                                 'Chamber-8_Inst_Timebox.PNG', "Chamber-8_Scintillator_event_rate.PNG", "Chamber-8_Scintillator_event_rate_2D.PNG"]
                 PLOTS.make_monitor(dir_path, scint_list, 'scintillator', 'Chamber-8')
-                PLOTS.update_monitor(dir_path, monitor, ['Chamber-7_occupancy_monitor.PNG', 'Chamber-8_occupancy_monitor.PNG',  'Chamber-7_scintillator_monitor.PNG', 'Chamber-8_scintillator_monitor.PNG'], str(rate))
+                PLOTS.update_monitor(dir_path, monitor, ['Chamber-7_occupancy_monitor.PNG', 'Chamber-8_occupancy_monitor.PNG',  'Chamber-7_scintillator_monitor.PNG', 'Chamber-8_scintillator_monitor.PNG'], str(rate), str(scint_rate))
             else:
-                PLOTS.update_monitor(dir_path, monitor, ['Chamber-7_occupancy_monitor.PNG', 'Chamber-8_occupancy_monitor.PNG'], str(rate))
+                PLOTS.update_monitor(dir_path, monitor, ['Chamber-7_occupancy_monitor.PNG', 'Chamber-8_occupancy_monitor.PNG'], str(rate), str(scint_rate))
                      
                 
 except KeyboardInterrupt:
     print ('\nReading stopped.\n') 
     sys.exit()
     f.close()
-    
