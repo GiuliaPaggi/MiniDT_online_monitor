@@ -41,7 +41,6 @@ def plot_1D(figure, ax, ch, entries, title, run_number,  xlabel, ylabel, chamber
     
     chamber_number : string, optional
         chamber number, to distinguish the two chambers monitors. The default is '' since only one is working at the moment
-
     
     Returns
     -------
@@ -90,7 +89,6 @@ def plot_2D(figure, ax, entries, title, run_number, xlabel, ylabel, chamber_numb
     
     chamber_number : string, optional
         chamber number, to distinguish the two chambers monitors
-
     
     Returns
     -------
@@ -144,20 +142,19 @@ def save_1D(path, ch, entries, title, namerun, xlabel, ylabel, chamber_number, x
         
     chamber_number : string
         chamber number, to distinguish the two chambers monitors
-
     Returns
     -------
     None.
     
     """
     
-    fig_s, ax_s = plt.subplots(1, 1, figsize = (15, 10))
-    ax_s.set_xlabel(xlabel)
-    ax_s.set_ylabel(ylabel)
-    ax_s.set_xticks(xticks)
-    ax_s.bar(ch,entries, width =1, color = '#1f77b4', align ='center')
-    ax_s.set_title(namerun + ' - ' + chamber_number + ' - '+datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
-    fig_s.savefig(path +chamber_number+'_'+title+'.PNG') 
+    fig, ax = plt.subplots(1, 1, figsize = (15, 10))
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_xticks(xticks)
+    ax.bar(ch,entries, width =1, color = '#1f77b4', align ='center')
+    ax.set_title(namerun + ' - ' + chamber_number + ' - '+datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
+    fig.savefig(path +chamber_number+'_'+title+'.PNG') 
     plt.close()
     
 def save_2D(path, entries, title, namerun , xlabel, ylabel, chamber_number):
@@ -168,13 +165,7 @@ def save_2D(path, entries, title, namerun , xlabel, ylabel, chamber_number):
     Parameters
     ----------
     path : string
-        path to the directory in which the plot will be saved
-    
-    figure: Figure
-        Figure in which the subplots are drawn
-        
-    ax : AxesSubplot
-        Axes of the subplot in which the function draws
+        path to the directory in which the plot will be saved 
     
     entries : array-like
         Height of the bars
@@ -193,7 +184,6 @@ def save_2D(path, entries, title, namerun , xlabel, ylabel, chamber_number):
     
     chamber_number : string
         chamber number, to distinguish the two chambers monitors
-
         
     Returns
     -------
@@ -201,24 +191,23 @@ def save_2D(path, entries, title, namerun , xlabel, ylabel, chamber_number):
         
     """
     
-    fig_s, ax_s = plt.subplots(1, 1, figsize = (15, 10))
+    fig, ax= plt.subplots(1, 1, figsize = (15, 10))
     scale_max = 1.1*entries.max()
     scale_min = .9*entries.min()
-    ax_s.cla()
-    ax_s.set_xlabel(xlabel)
-    ax_s.set_ylabel(ylabel)
-    ax_s.set_xticks([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]) 
-    ax_s.set_yticks([1, 2, 3, 4])
-    m = ax_s.pcolormesh(entries, vmin = scale_min, vmax = scale_max) 
-    plt.colorbar(m, ax = ax_s)
-    ax_s.set_title(namerun + ' - ' + chamber_number + ' - '+ datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
-    fig_s.savefig(path +chamber_number+'_'+title+'.PNG') 
+    ax.cla()
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_xticks([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]) 
+    ax.set_yticks([1, 2, 3, 4])
+    m = ax.pcolormesh(entries, vmin = scale_min, vmax = scale_max) 
+    plt.colorbar(m, ax = ax)
+    ax.set_title(namerun + ' - ' + chamber_number + ' - '+ datetime.now().strftime("%Y/%m/%d - %H:%M:%S")+' ' +title)
+    fig.savefig(path +chamber_number+'_'+title+'.PNG') 
     plt.close()
 
 def make_monitor( path, image_names , monitor_name , chamber_number):
     """
     
-
     Parameters
     ----------
     path : string
@@ -232,11 +221,9 @@ def make_monitor( path, image_names , monitor_name , chamber_number):
         
     chamber_number : string
         chamber number, to distinguish the two chambers monitors
-
     Returns
     -------
     None.
-
     """
     original_path = os.getcwd()
     os.chdir(path)
@@ -266,10 +253,9 @@ def make_monitor( path, image_names , monitor_name , chamber_number):
     os.chdir(original_path)
     
     
-def update_monitor(path, placeholder, image_names, rate_):
+def update_monitor(path, placeholder, image_names, rate_, rate_scint):
     """
     
-
     Parameters
     ----------
     path : string
@@ -283,12 +269,13 @@ def update_monitor(path, placeholder, image_names, rate_):
     
     rate_ : string
         rate in the last 30s of data taking
-
-
+    
+    rate_scint : string
+        rate of scintillator in the last 30s of data taking
+        
     Returns
     -------
     None.
-
     """
     #reads images
     original_path = os.getcwd()
@@ -297,7 +284,8 @@ def update_monitor(path, placeholder, image_names, rate_):
     images = [Image.open(x) for x in image_names]
     #updates monitor web page
     with placeholder.container():
-        st.markdown("### Rate: "+rate_+" Hz")
+        st.markdown("### Rate: "+rate_+" Hz  &emsp;&emsp; Scintillator Rate: "+rate_scint+" Hz")
+        #st.markdown("### Scintillator Rate: "+rate_scint+" Hz")
         fig_col1, fig_col2 = st.columns([2, 3])
         with fig_col1:
             st.markdown("### Occupancy Monitor")
@@ -320,12 +308,17 @@ def update_monitor(path, placeholder, image_names, rate_):
     
 
 
-def draw_digis_onech(x0, y0, hits_channels):
+def draw_digis_onech(figure, ax, x0, y0, hits_channels):
     """
     
-
     Parameters
     ----------
+    figure: Figure
+        Figure in which the event display is drawn
+        
+    ax : AxesSubplot
+        Axes of the figure in which the function draws
+        
     x0 : int
         x coordinate of the lower left corner of the chamber representation
         
@@ -334,11 +327,9 @@ def draw_digis_onech(x0, y0, hits_channels):
         
     hits_channels : list
         list of channels of hits in chamber for the given event
-
     Returns
     -------
     None.
-
     """
     layer=[4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1,4,2,3,1]
     wire=[1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12,13,13,13,13,14,14,14,14,15,15,15,15,16,16,16,16]
@@ -360,45 +351,54 @@ def draw_digis_onech(x0, y0, hits_channels):
             mfc='w'
         cells['L'+str(l)+'W'+str(w)]=plt.Rectangle((x,y),b,h,ec='k',fc=mfc)
         wires['L'+str(l)+'W'+str(w)]=plt.Circle((x+b/2,y+h/2),radius=1,fc='k')
-        plt.gca().add_patch(cells['L'+str(l)+'W'+str(w)])
-        plt.gca().add_patch(wires['L'+str(l)+'W'+str(w)])
+        ax.add_patch(cells['L'+str(l)+'W'+str(w)])
+        ax.add_patch(wires['L'+str(l)+'W'+str(w)])
         
-def event_display(displaypath, n_event, hits_ch7, hits_ch8):
+def event_display(displaypath, n_file,  hits_ch7, info_ch7, hits_ch8, info_ch8, namerun, n_event ):
     """
     
 
     Parameters
     ----------
     displaypath : string
-        path to folder in which the event diplay will be saved
-    
-    n_event : int
-        event number in current monitor run
+        path to folder in which the event display plots will be saved
+        
+    n_file : int
+        int to numerate file in the folder
         
     hits_ch7 : list
-        hits in chamber 7
+        list of hits in chamber 7
         
     hits_ch8 : list
-        hits in chamber 8
+        list of hits in chamber 8
+        
+    namerun : string
+        run name to set the event display title
+        
+    n_event : int
+        number of 4 hits in 2 chamber events since the beginning of the monitor program 
 
     Returns
     -------
     None.
 
     """
-    plt.figure(figsize=(12, 12), dpi=300)
-    ax = plt.gca()
+    fig, ax = plt.subplots(1, 1, figsize = (15, 10))
     ax.axes.xaxis.set_ticklabels([])
     ax.axes.yaxis.set_ticklabels([])
-    plt.tick_params(bottom = False, left=False)      
-    draw_digis_onech(0, 160, hits_ch8)
-    draw_digis_onech(0, 0, hits_ch7)
-    plt.axis('scaled')
-    title = displaypath+'Event_'+str(n_event)+'.PNG'
-    plt.savefig(title)
-
-
-    
-    
-
-    
+    ax.tick_params(bottom = False, left=False)      
+    draw_digis_onech(fig, ax, 0, 365, hits_ch8)
+    draw_digis_onech(fig, ax, 0, 0, hits_ch7)
+    ax.set_title(namerun +' - Event n.'+ str(n_event))
+    ax.text(0.6, -0.23, info_ch7,
+        verticalalignment='bottom', horizontalalignment='left',
+        transform=ax.transAxes,
+        color='black', fontsize=15)
+    ax.text(0.1, -0.23, info_ch8,
+        verticalalignment='bottom', horizontalalignment='left',
+        transform=ax.transAxes,
+        color='black', fontsize=15)
+    ax.axis('scaled')
+    title = displaypath+'Event_Display_'+str(n_file)+'.PNG'
+    fig.savefig(title)
+    plt.close()
