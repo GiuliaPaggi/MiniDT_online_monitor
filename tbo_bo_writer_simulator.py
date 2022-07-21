@@ -43,10 +43,11 @@ print("\n\n\n\nStarting simulated run, press CTRL-C to stop")
 hitcount=0
 old_hitcount=0
 old_t=0
+run_duration = 5
 
 try: 
     while( True ):
-        time.sleep(0.1)
+        time.sleep(0.01)
         t2 = time.time()
         deltatime = t2-t1
         deltaprint = t2-old_t
@@ -79,7 +80,10 @@ try:
             data_f.write('_ ' +str(deltatime)+' '+str(hit_orbit)+' '+str(hit_ch)+' '+str(hit_bx)+' '+str(hit_tdc)+'\n') 
 
         data_f.flush()
-
+        
+        if time.time()-t1 > run_duration :
+            raise KeyboardInterrupt
+            
 except KeyboardInterrupt:
     print ('\nRun stopped.\n')
     #condition = False
