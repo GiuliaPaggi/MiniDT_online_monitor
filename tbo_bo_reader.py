@@ -33,7 +33,7 @@ else :
 
 data_path = config.get('path', 'DataFolderPath')
 plot_path = config.get('path', 'PlotFolderPath')
-#display_path = config.get('path', 'LiveFolderPath')
+display_path = config.get('path', 'LiveFolderPath')
 logfile_path = config.get('file', 'LogFile')
 show_plt = config.getboolean('option', 'ShowPlots')
 # ----- run number can be passed as an argument from the terminal command line -----
@@ -66,7 +66,7 @@ if n_run == -1:
 else : 
     filename =  run_name + ".txt"  
     dir_path = plot_path+run_name+'/' 
-    display_path = dir_path+'Event_display/'
+    #display_path = dir_path+'Event_display/'
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)          
     if not os.path.exists(display_path):
@@ -136,16 +136,18 @@ rate_2d_CH7 = np.array([[0]*16]*4, dtype = float)
 rate_2d_CH8 = np.array([[0]*16]*4, dtype = float)
 
 # ----- set up timebox cumulative and instantaneous -----
-timebox_xaxis = range(200)
+offset_timebox = 500
+length_timebox = 200
+timebox_xaxis = range(length_timebox)
 timebox_ticks = [0, 25, 50, 75, 100, 125, 150, 175, 200]
 
-timebox_entries_CH7 = [0] *200
+timebox_entries_CH7 = [0] *length_timebox
 inst_timebox_CH7 = []
-inst_timebox_entries_CH7 = [0] *200
+inst_timebox_entries_CH7 = [0] *length_timebox
 
-timebox_entries_CH8 = [0] *200
+timebox_entries_CH8 = [0] *length_timebox
 inst_timebox_CH8 = []
-inst_timebox_entries_CH8 = [0] *200
+inst_timebox_entries_CH8 = [0] *length_timebox
 
 # ----- set up occupancy of scintillators events -----
 scint_entries_CH7 = [0]*64
@@ -199,14 +201,14 @@ try:
             #reset rate histo chamber 7
             rate_entries_CH7 = [0] *64 
             rate_2d_CH7 [rate_2d_CH7>0] = 0
-            inst_timebox_entries_CH7 = [0] *200
+            inst_timebox_entries_CH7 = [0] *length_timebox
             scint_rate_CH7 = [0] *64
             scint_rate_2d_CH7 [scint_rate_2d_CH7>0] = 0
             
             #reset rate histo chamber 7
             rate_entries_CH8 = [0] *64 
             rate_2d_CH8 [rate_2d_CH8>0] = 0
-            inst_timebox_entries_CH8 = [0] *200
+            inst_timebox_entries_CH8 = [0] *length_timebox
             scint_rate_CH8 = [0] *64
             scint_rate_2d_CH8 [scint_rate_2d_CH8>0] = 0
             
@@ -256,31 +258,34 @@ try:
                     
                     
                 except ValueError:
-                    data_pin=230
+                    data_pin=228
                     scint_event =+1
                     scint = True
                     #recover trigger hit info
+                        
                     tr_systime = float(line[ i ].split(' ')[1])
                     tr_bx =  int( line[ i ].split(' ')[4] )
                     tr_tdc = int( line[ i ].split(' ')[5].strip('\n') )
                     tr_time = tr_bx*25.0 + tr_tdc*25/30
                     j=1
+                    l=1
                     event_ch_CH7 = []
                     event_info_CH7 = "Chamber 7:\n"
                     event_ch_CH8 = []
                     event_info_CH8 = "Chamber 8:\n"
+                    
                     while( line[ i ].split(' ')[2] == line[ i-j ].split(' ')[2]) :
                         #fill scintillator channel occupancy
                         hit_pin = int(line[ i-j ].split(' ')[3]  )
                     
-                        if hit_pin != 230:
+                        if hit_pin != data_pin:
                             hit_channel = pins.index(hit_pin)
                             #compute hits time
                             hit_bx =  int( line[ i-j ].split(' ')[4] )
                             hit_tdc = int( line[ i-j ].split(' ')[5].strip('\n') )
                             hit_time = hit_bx*25.0 + hit_tdc*25/30
                             #compute time diff and fill a histo with bin width = tdc resolution for cumulative timebox
-                            time_diff= hit_time - tr_time + 1000
+                            time_diff= hit_time - tr_time + offset_timebox
                             index=round(time_diff * 30/25 *.125) 
                             hit_orbit = int( line[ i-j ].split(' ')[2] )
                             
@@ -303,7 +308,8 @@ try:
                                     timebox_entries_CH7[index] +=1
                                     inst_timebox_entries_CH7[index] +=1
                                 except IndexError: 
-                                    print(time_diff, index)
+                                    pass
+                                    #print(time_diff, index)
                             else:
                                 hit_channel = hit_channel - 64
                                 hit_info = "Ch: "+str(hit_channel)+" Orbit: " +str(hit_orbit)+" BX: "+ str(hit_bx)+"\n"
@@ -323,13 +329,79 @@ try:
                                     timebox_entries_CH8[index] +=1
                                     inst_timebox_entries_CH8[index] +=1
                                 except IndexError: 
-                                    print(time_diff, index )
+                                    pass
+                                    #print(time_diff, index )
 
                         
                         j +=1
+                        
+                        
+                    while( i+l < len(line) and  line[ i ].split(' ')[2] == line[ i+l ].split(' ')[2]) :
+                        #fill scintillator channel occupancy
+                        hit_pin = int(line[ i+l ].split(' ')[3]  )
+                    
+                        if hit_pin != data_pin:
+                            hit_channel = pins.index(hit_pin)
+                            #compute hits time
+                            hit_bx =  int( line[ i+l ].split(' ')[4] )
+                            hit_tdc = int( line[ i+l ].split(' ')[5].strip('\n') )
+                            hit_time = hit_bx*25.0 + hit_tdc*25/30
+                            #compute time diff and fill a histo with bin width = tdc resolution for cumulative timebox
+                            time_diff= hit_time - tr_time + offset_timebox
+                            index=round(time_diff * 30/25 *.125) 
+                            hit_orbit = int( line[ i+l ].split(' ')[2] )
+                            
+                            if hit_channel <64:
+                                event_ch_CH7.append(hit_channel)
+                                hit_info = "Ch: "+str(hit_channel)+" Orbit: " +str(hit_orbit)+" BX: "+ str(hit_bx)+"\n"
+                                event_ch_CH7.append(hit_channel)
+                                event_info_CH7+=hit_info
+                                #fill scintillator 1d occupancy
+                                scint_entries_CH7[hit_channel] += 1
+                                scint_rate_CH7[hit_channel] += 1/delta_t
+                                
+                                #fill scintillator 2d occupancy
+                                hit_wire = wire[hit_channel]
+                                hit_layer = layer[hit_channel]
+                                scint_entries_2d_CH7[hit_layer-1][hit_wire -1] +=1
+                                scint_rate_2d_CH7[hit_layer-1][hit_wire -1] += 1/delta_t
+    
+                                try: 
+                                    timebox_entries_CH7[index] +=1
+                                    inst_timebox_entries_CH7[index] +=1
+                                except IndexError: 
+                                    pass
+                                    #print(time_diff, index)
+                            else:
+                                hit_channel = hit_channel - 64
+                                hit_info = "Ch: "+str(hit_channel)+" Orbit: " +str(hit_orbit)+" BX: "+ str(hit_bx)+"\n"
+                                event_ch_CH8.append(hit_channel)
+                                event_info_CH8+=hit_info
+                                #fill scintillator 1d occupancy
+                                scint_entries_CH8[hit_channel] += 1
+                                scint_rate_CH8[hit_channel] += 1/delta_t
+                                
+                                #fill scintillator 2d occupancy
+                                hit_wire = wire[hit_channel]
+                                hit_layer = layer[hit_channel]
+                                scint_entries_2d_CH8[hit_layer-1][hit_wire -1] +=1
+                                scint_rate_2d_CH8[hit_layer-1][hit_wire -1] += 1/delta_t
+    
+                                try: 
+                                    timebox_entries_CH8[index] +=1
+                                    inst_timebox_entries_CH8[index] +=1
+                                except IndexError: 
+                                    pass
+                                    #print(time_diff, index )
+
+                        
+                        l +=1
 
                     if len(event_ch_CH7) > 3 and len(event_ch_CH8) > 3 :
                         event_number+=1 
+                        # if len(event_ch_CH7) > 10 or len(event_ch_CH8) >10: 
+                        #     pass
+                        # else:
                         if event_number%23 == 0:
 
                             PLOTS.event_display(display_path, display_event, event_ch_CH7, event_info_CH7, event_ch_CH8, event_info_CH8, run_name, event_number)
