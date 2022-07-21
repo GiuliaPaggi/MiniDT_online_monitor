@@ -284,11 +284,11 @@ def update_monitor(path, placeholder, image_names, rate_, rate_scint):
     images = [Image.open(x) for x in image_names]
     #updates monitor web page
     with placeholder.container():
-        st.markdown("### Rate: "+rate_+" Hz  &emsp;&emsp; Scintillator Rate: "+rate_scint+" Hz")
+        st.markdown("#### Rate: "+rate_+" Hz  &emsp;&emsp; Scintillator Rate: "+rate_scint+" Hz")
         #st.markdown("### Scintillator Rate: "+rate_scint+" Hz")
         fig_col1, fig_col2 = st.columns([2, 3])
         with fig_col1:
-            st.markdown("### Occupancy Monitor")
+            st.markdown("#### Occupancy Monitor")
             c= st.container()
             c.markdown("#### Chamber 7")
             c.image(images[0])
@@ -297,7 +297,7 @@ def update_monitor(path, placeholder, image_names, rate_, rate_scint):
             #print('ok', flush = True)
         if len(images) == 4:
             with fig_col2:
-                st.markdown("### Timebox and Scintillator Occupancy")
+                st.markdown("#### Timebox and Scintillator Occupancy")
                 c= st.container()
                 c.markdown("#### Chamber 7")
                 c.image(images[2])
@@ -357,7 +357,6 @@ def draw_digis_onech(figure, ax, x0, y0, hits_channels):
 def event_display(displaypath, n_file,  hits_ch7, info_ch7, hits_ch8, info_ch8, namerun, n_event ):
     """
     
-
     Parameters
     ----------
     displaypath : string
@@ -377,11 +376,9 @@ def event_display(displaypath, n_file,  hits_ch7, info_ch7, hits_ch8, info_ch8, 
         
     n_event : int
         number of 4 hits in 2 chamber events since the beginning of the monitor program 
-
     Returns
     -------
     None.
-
     """
     fig, ax = plt.subplots(1, 1, figsize = (15, 10))
     ax.axes.xaxis.set_ticklabels([])
@@ -390,14 +387,14 @@ def event_display(displaypath, n_file,  hits_ch7, info_ch7, hits_ch8, info_ch8, 
     draw_digis_onech(fig, ax, 0, 365, hits_ch8)
     draw_digis_onech(fig, ax, 0, 0, hits_ch7)
     ax.set_title(namerun +' - Event n.'+ str(n_event))
-    ax.text(0.6, -0.23, info_ch7,
+    ax.text(0.1, -0.2,  info_ch7,
         verticalalignment='bottom', horizontalalignment='left',
         transform=ax.transAxes,
-        color='black', fontsize=15)
-    ax.text(0.1, -0.23, info_ch8,
+        color='black', fontsize=12)
+    ax.text(0.6, -0.2,info_ch8,
         verticalalignment='bottom', horizontalalignment='left',
         transform=ax.transAxes,
-        color='black', fontsize=15)
+        color='black', fontsize=12)
     ax.axis('scaled')
     title = displaypath+'Event_Display_'+str(n_file)+'.PNG'
     fig.savefig(title)
