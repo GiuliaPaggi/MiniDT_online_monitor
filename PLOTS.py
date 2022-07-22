@@ -12,6 +12,7 @@ def plot_1D(figure, ax, ch, entries, title, run_number,  xlabel, ylabel, chamber
     ----------          
     Parameters
     ----------
+    
     figure: Figure
         Figure in which the subplots are drawn
         
@@ -66,6 +67,7 @@ def plot_2D(figure, ax, entries, title, run_number, xlabel, ylabel, chamber_numb
     ----------          
     Parameters
     ----------
+    
     figure: Figure
         Figure in which the subplots are drawn
         
@@ -116,6 +118,7 @@ def save_1D(path, ch, entries, title, namerun, xlabel, ylabel, chamber_number, x
     ----------          
     Parameters
     ----------
+    
     path : string
         path to the directory in which the plot will be saved
         
@@ -142,6 +145,7 @@ def save_1D(path, ch, entries, title, namerun, xlabel, ylabel, chamber_number, x
         
     chamber_number : string
         chamber number, to distinguish the two chambers monitors
+        
     Returns
     -------
     None.
@@ -164,6 +168,7 @@ def save_2D(path, entries, title, namerun , xlabel, ylabel, chamber_number):
     ----------          
     Parameters
     ----------
+    
     path : string
         path to the directory in which the plot will be saved 
     
@@ -207,9 +212,11 @@ def save_2D(path, entries, title, namerun , xlabel, ylabel, chamber_number):
 
 def make_monitor( path, image_names , monitor_name , chamber_number):
     """
+    The function groups together in the same image the images passed via the image_names list, and saves the final result
     
     Parameters
     ----------
+    
     path : string
         path to the directory in which the produced image will be saved
         
@@ -221,6 +228,7 @@ def make_monitor( path, image_names , monitor_name , chamber_number):
         
     chamber_number : string
         chamber number, to distinguish the two chambers monitors
+        
     Returns
     -------
     None.
@@ -253,8 +261,9 @@ def make_monitor( path, image_names , monitor_name , chamber_number):
     os.chdir(original_path)
     
     
-def update_monitor(path, placeholder, image_names, rate_, rate_scint):
+def update_monitor(path, placeholder, image_names, rate_, rate_scint, rate_CH7, rate_CH8, list_rate_scint, list_rate_CH7, list_rate_CH8):
     """
+    The function updates the webpage writing information about the rate, plus the relative plots, and displays the images passed through image_names
     
     Parameters
     ----------
@@ -273,6 +282,21 @@ def update_monitor(path, placeholder, image_names, rate_, rate_scint):
     rate_scint : string
         rate of scintillator in the last 30s of data taking
         
+    rate_CH7: string
+        rate of MiniDT 7 in the last 30s of data taking
+        
+    rate_CH8 : string
+        rate of MiniDT 8 in the last 30s of data taking
+        
+    list_rate_scint : list
+        list of the previous value of the scintillator rate to be ploted
+
+    list_rate_CH7 : list
+        list of the previous value of chamber 7 rate to be ploted
+        
+    list_rate_CH8 : list
+        list of the previous value of chameber 8 rate to be ploted
+        
     Returns
     -------
     None.
@@ -280,39 +304,45 @@ def update_monitor(path, placeholder, image_names, rate_, rate_scint):
     #reads images
     original_path = os.getcwd()
     os.chdir(path)
-
+    
+    
     images = [Image.open(x) for x in image_names]
     #updates monitor web page
     with placeholder.container():
-        st.markdown("#### Rate: "+rate_+" Hz  &emsp;&emsp; Scintillator Rate: "+rate_scint+" Hz")
-        #st.markdown("### Scintillator Rate: "+rate_scint+" Hz")
-        fig_col1, fig_col2 = st.columns([2, 3])
+
+        rate_col, fig_col1, fig_col2 = st.columns([1.5, 2, 3])
+        with rate_col:
+            st.text("\n\n\n\n\n")
+            st.markdown("#### Rate: "+rate_+" Hz")
+            st.markdown("#### Scintillator Rate: "+rate_scint+" Hz")
+            st.line_chart(list_rate_scint, height= 170)
+            st.markdown("#### MiniDT 7 Rate: "+rate_CH7+" Hz")
+            st.line_chart(list_rate_CH7, height= 170)
+            st.markdown("#### MiniDT 8 Rate: "+rate_CH8+" Hz")
+            st.line_chart(list_rate_CH8, height=170)
         with fig_col1:
             st.markdown("#### Occupancy Monitor")
             c= st.container()
-            c.markdown("#### Chamber 7")
-            c.image(images[0])
-            c.markdown("#### Chamber 8")
-            c.image(images[1])
-            #print('ok', flush = True)
+            c.image(images[0], caption='Chamber 7 - Occupancy monitor')  #width = 600
+            c.image(images[1], caption='Chamber 8 - Occupancy monitor')
+
         if len(images) == 4:
             with fig_col2:
                 st.markdown("#### Timebox and Scintillator Occupancy")
                 c= st.container()
-                c.markdown("#### Chamber 7")
-                c.image(images[2])
-                c.markdown("#### Chamber 8")
-                c.image(images[3])
-                #print('ok', flush = True)
+                c.image(images[2], caption='Chamber 7 - Scinitllator events monitor')        #, width=900
+                c.image(images[3], caption='Chamber 8 - Scinitllator events monitor')
     os.chdir( original_path)
     
 
 
 def draw_digis_onech(figure, ax, x0, y0, hits_channels):
     """
+    The function draws the chambers in the current set up, coloring the hits indicated in hits_channels
     
     Parameters
     ----------
+    
     figure: Figure
         Figure in which the event display is drawn
         
@@ -327,6 +357,7 @@ def draw_digis_onech(figure, ax, x0, y0, hits_channels):
         
     hits_channels : list
         list of channels of hits in chamber for the given event
+        
     Returns
     -------
     None.
@@ -356,9 +387,10 @@ def draw_digis_onech(figure, ax, x0, y0, hits_channels):
         
 def event_display(displaypath, n_file,  hits_ch7, info_ch7, hits_ch8, info_ch8, namerun, n_event ):
     """
-    
+    The function build the event display: a representation of the chambers with highlighted cell were hits were recorded, plus the display of orbit-pin number-bx for each hit in the event
     Parameters
     ----------
+    
     displaypath : string
         path to folder in which the event display plots will be saved
         
@@ -368,14 +400,21 @@ def event_display(displaypath, n_file,  hits_ch7, info_ch7, hits_ch8, info_ch8, 
     hits_ch7 : list
         list of hits in chamber 7
         
+    info_ch7: list
+        list of orbit, OBDT pin and BX measurement for each event's hit in chamber 7
+        
     hits_ch8 : list
         list of hits in chamber 8
+        
+    info_ch8: list
+        list of orbit, OBDT pin and BX measurement for each event's hit in chamber 8
         
     namerun : string
         run name to set the event display title
         
     n_event : int
         number of 4 hits in 2 chamber events since the beginning of the monitor program 
+        
     Returns
     -------
     None.
