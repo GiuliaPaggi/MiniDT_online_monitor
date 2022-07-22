@@ -21,7 +21,7 @@ monitor = st.empty()
 
 # ----- import path from configuration file -----
 config = configparser.ConfigParser()
-config_file = 'config.txt'                  #/home/gpaggi/dtupy/scripts/
+config_file = '/home/gpaggi/dtupy/scripts/config.txt'                  #/home/gpaggi/dtupy/scripts/
 if os.path.exists(config_file): 
     config.read(config_file)     
 else : 
@@ -172,6 +172,13 @@ f.seek(st_size)
 event_number = 0
 #total number of scintillator events
 scint_event = 0
+scint_rate_vs_time = []
+#number of CH7 hit
+CH7_event = 0
+CH7_rate_vs_time = []
+#number of CH8 hit
+CH8_event = 0
+CH8_rate_vs_time = []
 try:
     
     while( True ):
@@ -197,6 +204,10 @@ try:
         else:    
             #number of event display file, in range 0-12
             display_event = 0
+            
+            scint_event = 0
+            CH7_event = 0
+            CH8_event = 0
             
             #reset rate histo chamber 7
             rate_entries_CH7 = [0] *64 
@@ -230,6 +241,7 @@ try:
                     
                     # CHAMBER 7
                     if data_channel < 64:
+                        CH7_event+=1
                         # ---- fill 1d occupancy ----
                         entries_CH7[data_channel] +=1
                         rate_entries_CH7[data_channel] += 1/delta_t
@@ -243,6 +255,7 @@ try:
                         
                     #CHAMBER 8
                     else: 
+                        CH8_event+=1
                         data_channel = data_channel-64
                         # ---- fill 1d occupancy ----
                         entries_CH8[data_channel] +=1
@@ -259,7 +272,7 @@ try:
                     
                 except ValueError:
                     data_pin=228
-                    scint_event =+1
+                    scint_event +=1
                     scint = True
                     #recover trigger hit info
                         
@@ -402,14 +415,36 @@ try:
                         # if len(event_ch_CH7) > 10 or len(event_ch_CH8) >10: 
                         #     pass
                         # else:
-                        if event_number%23 == 0:
+                        if event_number%37 == 0:
 
                             PLOTS.event_display(display_path, display_event, event_ch_CH7, event_info_CH7, event_ch_CH8, event_info_CH8, run_name, event_number)
                             display_event+=1
             
                 
-            #compute scintillator rate
-            scint_rate=round( scint_event/delta_t, 2)
+            #compute rate
+            scint_rate = round( scint_event/delta_t, 2)
+            if len(scint_rate_vs_time) > 25 : 
+                scint_rate_vs_time.pop(0)
+                scint_rate_vs_time.append(scint_rate)
+            else: 
+                scint_rate_vs_time.append(scint_rate)
+            
+            CH7_rate = round( CH7_event/delta_t, 2)
+            if len(CH7_rate_vs_time) > 25 : 
+                CH7_rate_vs_time.pop(0)
+                CH7_rate_vs_time.append(CH7_rate)
+            else: 
+                CH7_rate_vs_time.append(CH7_rate)
+            #print(CH7_rate_vs_time, flush = True)
+
+            CH8_rate = round( CH8_event/delta_t, 2)
+            if len(CH8_rate_vs_time) > 25 : 
+                CH8_rate_vs_time.pop(0)
+                CH8_rate_vs_time.append(CH8_rate)
+            else: 
+                CH8_rate_vs_time.append(CH8_rate)
+            #Sprint(CH8_rate_vs_time, flush = True)
+            
             # display plots with matplotlib
             if show_plt:
                 #plot CHAMBER 7
@@ -476,9 +511,10 @@ try:
                 scint_list = ['Chamber-8_Cumulative_Timebox.PNG', "Chamber-8_Scintillator_event_entries.PNG", "Chamber-8_Scintillator_event_entries_2D.PNG",
                                 'Chamber-8_Inst_Timebox.PNG', "Chamber-8_Scintillator_event_rate.PNG", "Chamber-8_Scintillator_event_rate_2D.PNG"]
                 PLOTS.make_monitor(dir_path, scint_list, 'scintillator', 'Chamber-8')
-                PLOTS.update_monitor(dir_path, monitor, ['Chamber-7_occupancy_monitor.PNG', 'Chamber-8_occupancy_monitor.PNG',  'Chamber-7_scintillator_monitor.PNG', 'Chamber-8_scintillator_monitor.PNG'], str(rate), str(scint_rate))
+                PLOTS.update_monitor(dir_path, monitor, ['Chamber-7_occupancy_monitor.PNG', 'Chamber-8_occupancy_monitor.PNG',  'Chamber-7_scintillator_monitor.PNG', 'Chamber-8_scintillator_monitor.PNG'],
+                                     str(rate), str(scint_rate), str(CH7_rate), str(CH8_rate), scint_rate_vs_time, CH7_rate_vs_time, CH8_rate_vs_time)
             else:
-                PLOTS.update_monitor(dir_path, monitor, ['Chamber-7_occupancy_monitor.PNG', 'Chamber-8_occupancy_monitor.PNG'], str(rate), str(scint_rate))
+                PLOTS.update_monitor(dir_path, monitor, ['Chamber-7_occupancy_monitor.PNG', 'Chamber-8_occupancy_monitor.PNG'], str(rate), str(scint_rate), str(CH7_rate), str(CH8_rate), scint_rate_vs_time, CH7_rate_vs_time, CH8_rate_vs_time)
                      
                 
 except KeyboardInterrupt:
