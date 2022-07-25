@@ -2,11 +2,13 @@
 MiniDTs online monitor project. Show occupancy plots, rate, and timebox in real-time.
 
 ## Project Status
-The project is in progress. At the moment, for one chamber it's possible to visualize:
+The project is concluded. For both chambers it's possible to visualize:
 - the channels' and 2D chamber cumulative occupancy, 
 - the rate of the last 30s both per channel and in the 2D configuration,
 - the timebox of the whole run, and the last 30s of data taking,
-- the channels' and 2D chamber cumulative and the last 30s occupancy relative to the events linked with a scintillator signal.
+- the channels' and 2D chamber cumulative and the last 30s occupancy relative to the events linked with a scintillator signal,
+- the overall rate of each chamber and its behaviour over the last 30 minutes of data taking,
+- the rate of the scintillator plane and its behaviour over the last 30 minutes of data taking.
 
 The produced plots are saved in .PNG format in a specific folder that can be specified using the configuration file, and refreshed every 30s. 
 The plots are shown live on a local web page while the monitor is active.
