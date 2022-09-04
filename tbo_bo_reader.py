@@ -232,7 +232,7 @@ try:
                 line.pop(len(line)-1)
 
             delta_t = float( line[len(line)-1].split(' ')[1] )- float(line[0].split(' ')[1] )
-            rate =round (len(line)/delta_t, 2)
+            rate =round (len(line)/delta_t)
             
             for i in range(0, len(line)):
                 try: 
@@ -422,14 +422,14 @@ try:
             
                 
             #compute rate
-            scint_rate = round( scint_event/delta_t, 2)
+            scint_rate = round( scint_event/delta_t)
             if len(scint_rate_vs_time) > 25 : 
                 scint_rate_vs_time.pop(0)
                 scint_rate_vs_time.append(scint_rate)
             else: 
                 scint_rate_vs_time.append(scint_rate)
             
-            CH7_rate = round( CH7_event/delta_t, 2)
+            CH7_rate = round( CH7_event/delta_t)
             if len(CH7_rate_vs_time) > 25 : 
                 CH7_rate_vs_time.pop(0)
                 CH7_rate_vs_time.append(CH7_rate)
@@ -437,7 +437,7 @@ try:
                 CH7_rate_vs_time.append(CH7_rate)
             #print(CH7_rate_vs_time, flush = True)
 
-            CH8_rate = round( CH8_event/delta_t, 2)
+            CH8_rate = round( CH8_event/delta_t)
             if len(CH8_rate_vs_time) > 25 : 
                 CH8_rate_vs_time.pop(0)
                 CH8_rate_vs_time.append(CH8_rate)
