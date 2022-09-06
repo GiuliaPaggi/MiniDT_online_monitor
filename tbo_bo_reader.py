@@ -179,6 +179,10 @@ CH7_rate_vs_time = []
 #number of CH8 hit
 CH8_event = 0
 CH8_rate_vs_time = []
+
+event_orbit_number = -1
+double_scint_counter = 0
+
 try:
     
     while( True ):
@@ -206,6 +210,7 @@ try:
             display_event = 0
             
             scint_event = 0
+            double_scint_counter = 0
             CH7_event = 0
             CH8_event = 0
             
@@ -271,11 +276,22 @@ try:
                     
                     
                 except ValueError:
-                    data_pin=228
-                    scint_event +=1
+                    if (data_pin!=228): 
+                        pin_error = "\n\n ----- Unexpected pin at pin: "+str(data_pin)+ "----- \n\n"
+                        print(pin_error)
+                    data_pin = 228
+                    
                     scint = True
                     #recover trigger hit info
-                        
+                    
+                    tr_orbit = int(line[ i ].split(' ')[2])  
+                    if tr_orbit == event_orbit_number: 
+                        #print(tr_orbit == event_orbit_number)
+                        double_scint_counter += 1
+                        continue
+                    
+                    scint_event +=1
+                    event_orbit_number = tr_orbit
                     tr_systime = float(line[ i ].split(' ')[1])
                     tr_bx =  int( line[ i ].split(' ')[4] )
                     tr_tdc = int( line[ i ].split(' ')[5].strip('\n') )
@@ -428,6 +444,9 @@ try:
                 scint_rate_vs_time.append(scint_rate)
             else: 
                 scint_rate_vs_time.append(scint_rate)
+                
+            #print(double_scint_counter)
+            double_scint_perc = round(double_scint_counter/scint_event, 2)
             
             CH7_rate = round( CH7_event/delta_t)
             if len(CH7_rate_vs_time) > 25 : 
@@ -488,7 +507,7 @@ try:
             PLOTS.save_2D(dir_path, rate_2d_CH8, "Rate_2D", run_name, "Wire", "Layer", 'Chamber-8')
             images_list = ['Chamber-8_Entries.PNG', 'Chamber-8_Entries_2D.PNG', 'Chamber-8_Rate.PNG', 'Chamber-8_Rate_2D.PNG']
             PLOTS.make_monitor(dir_path, images_list, 'occupancy', 'Chamber-8')
-            
+            print(double_scint_perc)
         
             if scint:
                 #save scint CHAMBER 7
@@ -512,9 +531,9 @@ try:
                                 'Chamber-8_Inst_Timebox.PNG', "Chamber-8_Scintillator_event_rate.PNG", "Chamber-8_Scintillator_event_rate_2D.PNG"]
                 PLOTS.make_monitor(dir_path, scint_list, 'scintillator', 'Chamber-8')
                 PLOTS.update_monitor(dir_path, monitor, ['Chamber-7_occupancy_monitor.PNG', 'Chamber-8_occupancy_monitor.PNG',  'Chamber-7_scintillator_monitor.PNG', 'Chamber-8_scintillator_monitor.PNG'],
-                                     str(rate), str(scint_rate), str(CH7_rate), str(CH8_rate), scint_rate_vs_time, CH7_rate_vs_time, CH8_rate_vs_time)
+                                     str(rate), str(scint_rate), str(CH7_rate), str(CH8_rate), scint_rate_vs_time, CH7_rate_vs_time, CH8_rate_vs_time, str(double_scint_perc))
             else:
-                PLOTS.update_monitor(dir_path, monitor, ['Chamber-7_occupancy_monitor.PNG', 'Chamber-8_occupancy_monitor.PNG'], str(rate), str(scint_rate), str(CH7_rate), str(CH8_rate), scint_rate_vs_time, CH7_rate_vs_time, CH8_rate_vs_time)
+                PLOTS.update_monitor(dir_path, monitor, ['Chamber-7_occupancy_monitor.PNG', 'Chamber-8_occupancy_monitor.PNG'], str(rate), str(scint_rate), str(CH7_rate), str(CH8_rate), scint_rate_vs_time, CH7_rate_vs_time, CH8_rate_vs_time, str(double_scint_perc))
                      
                 
 except KeyboardInterrupt:

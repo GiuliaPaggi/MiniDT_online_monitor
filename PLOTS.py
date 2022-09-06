@@ -261,7 +261,7 @@ def make_monitor( path, image_names , monitor_name , chamber_number):
     os.chdir(original_path)
     
     
-def update_monitor(path, placeholder, image_names, rate_, rate_scint, rate_CH7, rate_CH8, list_rate_scint, list_rate_CH7, list_rate_CH8):
+def update_monitor(path, placeholder, image_names, rate_, rate_scint, rate_CH7, rate_CH8, list_rate_scint, list_rate_CH7, list_rate_CH8, double_scint):
     """
     The function updates the webpage writing information about the rate, plus the relative plots, and displays the images passed through image_names
     
@@ -296,6 +296,9 @@ def update_monitor(path, placeholder, image_names, rate_, rate_scint, rate_CH7, 
         
     list_rate_CH8 : list
         list of the previous value of chameber 8 rate to be ploted
+    
+    double_scint: string
+        ratio of double scintillator hits wrt events
         
     Returns
     -------
@@ -316,6 +319,7 @@ def update_monitor(path, placeholder, image_names, rate_, rate_scint, rate_CH7, 
             st.markdown("#### Rate: "+rate_+" Hz")
             st.markdown("#### Scintillator Rate: "+rate_scint+" Hz")
             st.line_chart(list_rate_scint, height= 170)
+            st.markdown("#### Double scint/events: "+double_scint)
             st.markdown("#### MiniDT 7 Rate: "+rate_CH7+" Hz")
             st.line_chart(list_rate_CH7, height= 170)
             st.markdown("#### MiniDT 8 Rate: "+rate_CH8+" Hz")
