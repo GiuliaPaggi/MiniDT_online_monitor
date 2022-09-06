@@ -22,7 +22,7 @@ obdt_connectors = {
   'd':[40,62,73,153,148,155,156,157,159,166,61,82,77,68,146,147],
   'm':[122,117,23,99,100,116,118,134,132,136,135,144,145,163,164,167],
   'n':[140,92,94,95,97,67,71,80,83,168,196,192,194,84,133,197],
-  'scint':[230]
+  'scint':[228]
   }
 
 
@@ -43,7 +43,7 @@ print("\n\n\n\nStarting simulated run, press CTRL-C to stop")
 hitcount=0
 old_hitcount=0
 old_t=0
-run_duration = 5
+run_duration = 10000
 
 try: 
     while( True ):
@@ -57,9 +57,13 @@ try:
         hit_tdc = random.randint(0, 30)
         
         # for each scintillator signal simulate 4 hit vertical event in chamber startin from random L4 cell
-        if hit_ch == 230:
+        if hit_ch == 228:
             print("scintillator event")
             sys.stdout.flush()
+            double_scint = random.randint(1, 10)
+            if double_scint > 5:
+                print("doppio scint")
+                data_f.write('_ ' +str(deltatime)+' '+str(hit_orbit)+' '+str(hit_ch)+' '+str(hit_bx+1)+' '+str(hit_tdc+2)+'\n')
             tr_time = hit_bx*25 + hit_tdc*25/30 
             
             L4ch=random.randrange(0, 124, 4)  #select layer 4 (L4) channels, using https://github.com/zucchett/MiniDT/wiki
