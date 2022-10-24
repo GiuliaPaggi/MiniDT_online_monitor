@@ -446,7 +446,10 @@ try:
                 scint_rate_vs_time.append(scint_rate)
                 
             #print(double_scint_counter)
-            double_scint_perc = round(double_scint_counter/scint_event, 2)
+            if scint_event == 0:
+                double_scint_perc = -1
+            else:
+                double_scint_perc = round(double_scint_counter/scint_event, 2)
             
             CH7_rate = round( CH7_event/delta_t)
             if len(CH7_rate_vs_time) > 25 : 
